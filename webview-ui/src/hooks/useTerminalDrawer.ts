@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import type { AgentActivity, AgentAppearance, TabStatus } from '../components/AgentCard.js';
 import { TERMINAL_DRAWER_DEFAULT_WIDTH_PX } from '../constants.js';
+import { agentNameFor } from '../office/agentNames.js';
 import type { OfficeState } from '../office/engine/officeState.js';
 import type { ToolActivity } from '../office/types.js';
 import type { TerminalConnectionStatus } from '../terminal/terminalClient.js';
@@ -175,7 +176,9 @@ export function useTerminalDrawer({
   const getAppearance = useCallback(
     (id: number): AgentAppearance => {
       const ch = getOfficeState().characters.get(id);
-      return ch ? { palette: ch.palette, repeat: ch.repeat } : DEFAULT_APPEARANCE;
+      if (!ch) return DEFAULT_APPEARANCE;
+      const name = agentNameFor(ch.directoryName);
+      return { palette: ch.palette, repeat: ch.repeat, ...(name ? { name } : {}) };
     },
     [getOfficeState],
   );

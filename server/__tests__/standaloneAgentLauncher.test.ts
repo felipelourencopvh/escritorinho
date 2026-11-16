@@ -7,6 +7,7 @@ import type { HookProvider } from '../../core/src/provider.js';
 import { AgentRuntime } from '../src/agentRuntime.js';
 import { AgentStateStore } from '../src/agentStateStore.js';
 import { JSONL_POLL_INTERVAL_MS } from '../src/constants.js';
+import { saveUserDirectory } from '../src/directories.js';
 import { claudeProvider } from '../src/providers/hook/claude/claude.js';
 import type { IPty, PtyModule, PtySpawnOptions } from '../src/terminal/ptyModule.js';
 import { PtySessionManager } from '../src/terminal/ptySessionManager.js';
@@ -124,6 +125,32 @@ describe('launchStandaloneAgent', () => {
     expect(agent?.seatId).toBe('chair-7');
     expect(agent?.palette).toBe(3);
     expect(harness.spawnArgs[0].args).toEqual(['--resume', sessionId]);
+  });
+
+  it("passes the Directory's briefing as one --append-system-prompt argument, on launch and resume", () => {
+    const briefing = 'You are Ana.\nRead "notes/MEMORY.md" first; never run $(rm -rf).';
+    saveUserDirectory({ name: 'Bids', path: tempDir, agentName: 'Ana', briefing });
+    const harness = workingPtyManager();
+
+    launch(harness, { directoryPath: tempDir });
+    expect(harness.spawnArgs[0].args.slice(2)).toEqual(['--append-system-prompt', briefing]);
+
+    const sessionId = '0b8a701c-400d-41ea-801f-40de5e070a8d';
+    const transcript = path.join(projectDir, `${sessionId}.jsonl`);
+    fs.writeFileSync(transcript, '{"type":"user"}\n');
+    launch(harness, { directoryPath: tempDir, resume: { sessionId, transcript } });
+    expect(harness.spawnArgs[1].args).toEqual([
+      '--resume',
+      sessionId,
+      '--append-system-prompt',
+      briefing,
+    ]);
+  });
+
+  it('adds no system-prompt argument outside a Directory with a briefing', () => {
+    const harness = workingPtyManager();
+    launch(harness, { directoryPath: tempDir });
+    expect(harness.spawnArgs[0].args).not.toContain('--append-system-prompt');
   });
 
   it('a fresh launch reports an empty context (a full gauge) at once; a resume does not', () => {

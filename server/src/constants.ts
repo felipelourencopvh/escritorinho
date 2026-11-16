@@ -238,3 +238,8 @@ export const NEW_CONVERSATION_TITLE = 'New conversation';
 /** Most agent ids a saved card order keeps. The order is pruned to live agents
  *  on every save, so this only bounds a hand-edited or hostile payload. */
 export const MAX_CARD_ORDER_LENGTH = 1_000;
+
+/** A Directory's agent name (the office label), in characters. */
+export const DIRECTORY_AGENT_NAME_MAX_LENGTH = 40;
+/** A Directory's briefing (appended to the CLI's system prompt), in characters. */
+export const DIRECTORY_BRIEFING_MAX_LENGTH = 4000;

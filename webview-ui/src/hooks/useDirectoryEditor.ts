@@ -143,6 +143,8 @@ export function useDirectoryEditor({
         path: values.path,
         characters: values.characters,
         characterOrder: values.characterOrder,
+        agentName: values.agentName,
+        briefing: values.briefing,
         // Identifies the entry being edited, so a re-pointed path replaces it
         // instead of adding a second Directory.
         ...(editing ? { previousPath: editing.path } : {}),

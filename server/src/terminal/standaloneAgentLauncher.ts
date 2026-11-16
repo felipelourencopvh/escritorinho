@@ -74,9 +74,13 @@ export function launchStandaloneAgent(
   const cwd = options.directoryPath ?? process.cwd();
   const sessionId = options.resume?.sessionId ?? crypto.randomUUID();
 
+  // The Directory launched into, if the cwd is one: its name, its default
+  // characters and its briefing (re-sent on a resume: the CLI keeps no copy).
+  const directory = directoryAt(cwd, [hostDirectory()]);
   const launch = provider.buildLaunchCommand?.(sessionId, cwd, {
     bypassPermissions: options.bypassPermissions,
     resume: options.resume !== undefined,
+    appendSystemPrompt: directory?.briefing,
   });
   if (!launch) {
     console.error('[Escritorinho] Terminal: provider.buildLaunchCommand is not implemented');
@@ -95,8 +99,6 @@ export function launchStandaloneAgent(
 
   const id = store.nextAgentId.current++;
 
-  // The Directory launched into, if the cwd is one: its name and its default characters.
-  const directory = directoryAt(cwd, [hostDirectory()]);
   const agent = createAgentState({
     id,
     sessionId,

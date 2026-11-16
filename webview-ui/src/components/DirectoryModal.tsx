@@ -2,6 +2,7 @@ import type { KeyboardEvent } from 'react';
 import { useEffect, useState } from 'react';
 
 import type { DirectoryCharacterOrder } from '../../../core/src/messages.js';
+import { DIRECTORY_AGENT_NAME_MAX_LENGTH, DIRECTORY_BRIEFING_MAX_LENGTH } from '../constants.js';
 import type { Directory } from '../hooks/useExtensionMessages.js';
 import { useT } from '../i18n/index.js';
 import { DirectoryCharactersField } from './DirectoryCharactersField.js';
@@ -16,6 +17,10 @@ export interface DirectoryModalValues {
   /** Default characters for its launches, highest priority first. */
   characters: number[];
   characterOrder: DirectoryCharacterOrder;
+  /** Name its agents go by in the office; empty = the Directory's name. */
+  agentName: string;
+  /** Standing instructions appended to each launch's system prompt; empty = none. */
+  briefing: string;
 }
 
 interface DirectoryModalProps {
@@ -68,6 +73,8 @@ export function DirectoryModal({
   const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
   const [characters, setCharacters] = useState<number[]>([]);
   const [characterOrder, setCharacterOrder] = useState<DirectoryCharacterOrder>('priority');
+  const [agentName, setAgentName] = useState('');
+  const [briefing, setBriefing] = useState('');
 
   // Refill from whatever the modal was opened on. Keyed on isOpen too, so
   // re-opening Add after a cancelled edit starts blank rather than stale.
@@ -78,6 +85,8 @@ export function DirectoryModal({
     setSelectedAreas(assignedAreas);
     setCharacters(editing?.characters ?? []);
     setCharacterOrder(editing?.characterOrder ?? 'priority');
+    setAgentName(editing?.agentName ?? '');
+    setBriefing(editing?.briefing ?? '');
     // assignedAreas is derived per render; keying the refill on it would reset
     // the multi-select on every keystroke. Opening the modal is the only moment
     // it should be read.
@@ -93,6 +102,8 @@ export function DirectoryModal({
       areas: selectedAreas,
       characters,
       characterOrder,
+      agentName: agentName.trim(),
+      briefing: briefing.trim(),
     });
   };
 
@@ -156,6 +167,29 @@ export function DirectoryModal({
             onChange={(e) => setPath(e.target.value)}
             className="text-sm py-2 px-4 bg-bg border-2 border-border rounded-none text-text"
           />
+        </label>
+        <label className="flex flex-col gap-2 text-xs text-text-muted">
+          {t('directory.agentName')}
+          <input
+            type="text"
+            value={agentName}
+            maxLength={DIRECTORY_AGENT_NAME_MAX_LENGTH}
+            placeholder={t('directory.agentNamePlaceholder')}
+            onChange={(e) => setAgentName(e.target.value)}
+            className="text-sm py-2 px-4 bg-bg border-2 border-border rounded-none text-text"
+          />
+        </label>
+        <label className="flex flex-col gap-2 text-xs text-text-muted">
+          {t('directory.briefing')}
+          <textarea
+            value={briefing}
+            rows={4}
+            maxLength={DIRECTORY_BRIEFING_MAX_LENGTH}
+            placeholder={t('directory.briefingPlaceholder')}
+            onChange={(e) => setBriefing(e.target.value)}
+            className="text-sm py-2 px-4 bg-bg border-2 border-border rounded-none text-text resize-y pixel-scrollbar"
+          />
+          <span className="text-2xs">{t('directory.briefingHint')}</span>
         </label>
         {suggestions.length > 0 && (
           <div data-testid="directory-suggestions" className="flex flex-col gap-2">

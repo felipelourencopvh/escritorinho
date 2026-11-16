@@ -12,6 +12,8 @@ import { PixelIcon } from './ui/PixelIcon.js';
 export interface AgentAppearance {
   palette: number;
   repeat: number;
+  /** The name it goes by in the office (its Directory's agent name), if any. */
+  name?: string;
 }
 
 /** Agent activity reflected by the tab's status dot. */
@@ -67,7 +69,7 @@ export function AgentCard({
     <div
       className={`group relative pointer-events-auto flex items-stretch gap-1 p-1 cursor-pointer border-2 shrink-0 ${CARD_VARIANT[variant]}`}
       onClick={() => onSelect(agentId)}
-      title={t('agent.numbered', { id: agentId })}
+      title={appearance.name ?? t('agent.numbered', { id: agentId })}
     >
       <CharacterMugShot
         palette={appearance.palette}

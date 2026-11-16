@@ -6,6 +6,7 @@ import { castStore } from '../characters/castStore.js';
 import { startOfficeSync } from '../characters/officeSprites.js';
 import { cardOrderOf } from '../components/cardBar.js';
 import { playDoneSound, playPermissionSound, setSoundEnabled } from '../notificationSound.js';
+import { setDirectoryAgentNames } from '../office/agentNames.js';
 import { clearAgentContextUsed, setAgentContextUsed } from '../office/contextGauge.js';
 import type { ExistingAgentMeta, PendingAgent } from '../office/engine/existingAgents.js';
 import {
@@ -782,6 +783,7 @@ export function useExtensionMessages(
         os.setAreaMappings(mappings);
       } else if (msg.type === 'directoriesLoaded') {
         const directories = msg.directories as Directory[];
+        setDirectoryAgentNames(directories);
         setDirectories(directories);
       } else if (msg.type === 'directorySuggestions') {
         setDirectorySuggestions((msg.paths ?? []) as string[]);

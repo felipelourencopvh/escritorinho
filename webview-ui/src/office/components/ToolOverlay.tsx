@@ -20,6 +20,7 @@ import {
 } from '../../constants.js';
 import type { SubagentCharacter } from '../../hooks/useExtensionMessages.js';
 import { translateStatus, useLocale, useT } from '../../i18n/index.js';
+import { agentNameFor } from '../agentNames.js';
 import { ContextBar } from '../ContextBar.js';
 import { contextLeft } from '../contextGauge.js';
 import type { OfficeState } from '../engine/officeState.js';
@@ -283,6 +284,8 @@ export function ToolOverlay({
 
         // Team info
         const teamRoleLabel = ch.isTeamLead ? 'LEAD' : ch.agentName || null;
+        // The name its Directory gives its agents ("Ana"), over the activity line.
+        const personaName = !isSub && !teamRoleLabel ? agentNameFor(ch.directoryName) : undefined;
 
         // Context gauge. Every agent gets one — lead, teammate, adopted,
         // headless — as soon as the server reports its context (a cleared
@@ -318,6 +321,15 @@ export function ToolOverlay({
                   />
                 )}
                 <div className="flex flex-col gap-0 overflow-hidden">
+                  {personaName && (
+                    <span
+                      className="overflow-hidden text-ellipsis block leading-none text-accent-bright"
+                      style={{ fontSize: '20px', fontWeight: 'bold' }}
+                      data-testid="agent-persona-name"
+                    >
+                      {personaName}
+                    </span>
+                  )}
                   {teamRoleLabel && (
                     <span
                       className="overflow-hidden text-ellipsis block leading-none"

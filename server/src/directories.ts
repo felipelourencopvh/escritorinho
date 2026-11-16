@@ -24,6 +24,7 @@ import {
   readConfig,
   type UserDirectory,
   withDirectoryCharacters,
+  withDirectoryPersona,
   writeConfig,
 } from './configPersistence.js';
 import { DIRECTORY_WRITE_FAILED_REASON } from './constants.js';
@@ -143,6 +144,9 @@ export function saveUserDirectory(input: {
   /** Default characters, as sent (validated here). */
   characters?: unknown;
   characterOrder?: unknown;
+  /** Agent name and briefing, as sent (validated here). */
+  agentName?: unknown;
+  briefing?: unknown;
 }): DirectoryStoreResult {
   const validation = validateDirectoryPath(input.path);
   if (!validation.ok) {
@@ -162,7 +166,10 @@ export function saveUserDirectory(input: {
     const key = normalizeDirectoryPath(entry.path);
     return key !== newKey && key !== previousKey;
   });
-  const stored = withDirectoryCharacters({ name, path: resolvedPath }, input);
+  const stored = withDirectoryPersona(
+    withDirectoryCharacters({ name, path: resolvedPath }, input),
+    input,
+  );
   cfg.directories.push(stored);
 
   if (!writeConfig(cfg)) {
@@ -246,6 +253,8 @@ export function handleDirectoryClientMessage(
         previousPath: typeof msg.previousPath === 'string' ? msg.previousPath : undefined,
         characters: msg.characters,
         characterOrder: msg.characterOrder,
+        agentName: msg.agentName,
+        briefing: msg.briefing,
       });
       if (!result.ok) {
         deps.reply({ type: 'directoryRejected', path: submittedPath, reason: result.reason });

@@ -194,7 +194,12 @@ export interface HookProvider {
   buildLaunchCommand?(
     sessionId: string,
     cwd: string,
-    opts?: { bypassPermissions?: boolean; resume?: boolean },
+    opts?: {
+      bypassPermissions?: boolean;
+      resume?: boolean;
+      /** Standing instructions appended to the CLI's system prompt (a Directory's briefing). */
+      appendSystemPrompt?: string;
+    },
   ): {
     command: string;
     args: string[];

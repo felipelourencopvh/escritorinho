@@ -504,6 +504,15 @@ export const en = {
   'agent.contextLeftTokens': '{pct}% context left ({used}k of {max}k tokens used)',
   'agent.contextLeft': '{pct}% context left',
   'editor.areaRenameHint': '{name} — double-click to rename',
+
+  // ── Directory agent persona ──
+  'directory.agentName': 'Agent name',
+  'directory.agentNamePlaceholder': 'e.g. Ana',
+  'directory.briefing': 'Briefing',
+  'directory.briefingPlaceholder':
+    'What this agent does, how it should work, and where its notes are. Example: You review public tenders. Read ~/notes/MEMORY.md before starting.',
+  'directory.briefingHint':
+    'Sent to Claude Code every time an agent starts here. Nothing is written to the folder.',
 } as const;
 
 export type MessageKey = keyof typeof en;

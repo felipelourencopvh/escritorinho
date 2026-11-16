@@ -210,6 +210,46 @@ describe('directories', () => {
       expect(readConfig().directories).toEqual([{ name: 'Mine', path: alpha, characters: [4] }]);
     });
 
+    it('stores the agent name and briefing trimmed, and lists them', () => {
+      saveUserDirectory({
+        name: 'Bids',
+        path: alpha,
+        agentName: '  Ana  ',
+        briefing: '  You review public tenders.\nRead ~/notes/MEMORY.md first.  ',
+      });
+
+      const stored = {
+        name: 'Bids',
+        path: alpha,
+        agentName: 'Ana',
+        briefing: 'You review public tenders.\nRead ~/notes/MEMORY.md first.',
+      };
+      expect(readConfig().directories).toEqual([stored]);
+      expect(directoryAt(alpha, [])).toEqual({ ...stored, source: 'user' });
+    });
+
+    it('drops an empty or non-string agent name and briefing, and caps their length', () => {
+      saveUserDirectory({ name: 'Mine', path: alpha, agentName: '   ', briefing: 42 });
+      saveUserDirectory({
+        name: 'Long',
+        path: beta,
+        agentName: 'x'.repeat(100),
+        briefing: 'y'.repeat(5000),
+      });
+
+      const [mine, long] = readConfig().directories;
+      expect(mine).toEqual({ name: 'Mine', path: alpha });
+      expect(long.agentName).toHaveLength(40);
+      expect(long.briefing).toHaveLength(4000);
+    });
+
+    it('an edit without a briefing clears it', () => {
+      saveUserDirectory({ name: 'Mine', path: alpha, agentName: 'Ana', briefing: 'Role' });
+      saveUserDirectory({ name: 'Mine', path: alpha, previousPath: alpha });
+
+      expect(readConfig().directories).toEqual([{ name: 'Mine', path: alpha }]);
+    });
+
     it('removes an entry without touching the others', () => {
       saveUserDirectory({ name: 'Mine', path: alpha });
       saveUserDirectory({ name: 'Other', path: beta });

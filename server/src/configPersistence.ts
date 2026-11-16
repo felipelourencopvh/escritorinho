@@ -7,7 +7,12 @@ import {
   parseDirectoryCharacters,
 } from '../../core/src/directoryCharacters.js';
 import type { DirectoryCharacterOrder } from '../../core/src/messages.js';
-import { CONFIG_FILE_NAME, PIXEL_AGENTS_DIR } from './constants.js';
+import {
+  CONFIG_FILE_NAME,
+  DIRECTORY_AGENT_NAME_MAX_LENGTH,
+  DIRECTORY_BRIEFING_MAX_LENGTH,
+  PIXEL_AGENTS_DIR,
+} from './constants.js';
 
 export interface AdapterSettings {
   soundEnabled: boolean;
@@ -63,6 +68,10 @@ export interface UserDirectory {
   characters?: number[];
   /** Absent = 'priority'. */
   characterOrder?: DirectoryCharacterOrder;
+  /** Name its agents go by in the office. Absent = the Directory's name. */
+  agentName?: string;
+  /** Appended to the CLI's system prompt at launch. Absent = none. */
+  briefing?: string;
 }
 
 export interface PixelAgentsConfig {
@@ -166,7 +175,7 @@ export function parseUserDirectories(raw: unknown): UserDirectory[] {
     if (typeof name !== 'string' || typeof dirPath !== 'string' || dirPath.length === 0) {
       continue;
     }
-    out.push(withDirectoryCharacters({ name, path: dirPath }, entry));
+    out.push(withDirectoryPersona(withDirectoryCharacters({ name, path: dirPath }, entry), entry));
   }
   return out;
 }
@@ -189,6 +198,27 @@ export function withDirectoryCharacters(
     characters,
     ...(order === 'random' ? { characterOrder: order } : {}),
   };
+}
+
+/**
+ * `entry` with the agent name and briefing in `raw` (a loose object): trimmed,
+ * capped, and stored only when non-empty.
+ */
+export function withDirectoryPersona(
+  entry: UserDirectory,
+  raw: { agentName?: unknown; briefing?: unknown },
+): UserDirectory {
+  const agentName = boundedText(raw.agentName, DIRECTORY_AGENT_NAME_MAX_LENGTH);
+  const briefing = boundedText(raw.briefing, DIRECTORY_BRIEFING_MAX_LENGTH);
+  return {
+    ...entry,
+    ...(agentName ? { agentName } : {}),
+    ...(briefing ? { briefing } : {}),
+  };
+}
+
+function boundedText(raw: unknown, max: number): string {
+  return typeof raw === 'string' ? raw.trim().slice(0, max) : '';
 }
 
 /** Coerce a loose object into a valid AdapterSettings with defaults for missing/wrong-typed fields. */

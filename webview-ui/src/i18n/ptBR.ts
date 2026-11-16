@@ -506,4 +506,13 @@ export const ptBR: Record<MessageKey, string> = {
   'agent.contextLeftTokens': '{pct}% de contexto livre ({used}k de {max}k tokens usados)',
   'agent.contextLeft': '{pct}% de contexto livre',
   'editor.areaRenameHint': '{name}: clique duas vezes para renomear',
+
+  // ── Directory agent persona ──
+  'directory.agentName': 'Nome do agente',
+  'directory.agentNamePlaceholder': 'ex.: Ana',
+  'directory.briefing': 'Briefing',
+  'directory.briefingPlaceholder':
+    'O que esse agente faz, como deve trabalhar e onde ficam as anotações dele. Exemplo: Você analisa editais de licitação. Leia ~/anotacoes/MEMORY.md antes de começar.',
+  'directory.briefingHint':
+    'Enviado ao Claude Code toda vez que um agente começa aqui. Nada é gravado na pasta.',
 };

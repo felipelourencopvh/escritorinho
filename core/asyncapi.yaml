@@ -1615,6 +1615,19 @@ components:
             minimum: 0
         characterOrder:
           $ref: '#/components/schemas/DirectoryCharacterOrder'
+        agentName:
+          type: string
+          maxLength: 40
+          description: >-
+            Name the agents launched here go by in the office (shown above the
+            character and on its card). Absent = the Directory's name.
+        briefing:
+          type: string
+          maxLength: 4000
+          description: >-
+            Standing instructions for agents launched here (their role, where
+            their notes live), appended to the CLI's system prompt at launch.
+            Absent = none.
 
     RemoveDirectory:
       description: >-
@@ -1796,6 +1809,19 @@ components:
             minimum: 0
         characterOrder:
           $ref: '#/components/schemas/DirectoryCharacterOrder'
+        agentName:
+          type: string
+          maxLength: 40
+          description: >-
+            Name the agents launched here go by in the office (shown above the
+            character and on its card). Absent = the Directory's name.
+        briefing:
+          type: string
+          maxLength: 4000
+          description: >-
+            Standing instructions for agents launched here (their role, where
+            their notes live), appended to the CLI's system prompt at launch.
+            Absent = none.
 
     DirectoryCharacterOrder:
       description: |

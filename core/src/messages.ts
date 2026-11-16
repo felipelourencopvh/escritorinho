@@ -445,6 +445,8 @@ export interface Directory {
   source: DirectorySource;
   characters?: number[];
   characterOrder?: DirectoryCharacterOrder;
+  agentName?: string;
+  briefing?: string;
 }
 
 export type DirectorySource = 'user' | 'host';
@@ -677,6 +679,8 @@ export interface SaveDirectory {
   previousPath?: string;
   characters?: number[];
   characterOrder?: DirectoryCharacterOrder;
+  agentName?: string;
+  briefing?: string;
 }
 
 export interface RemoveDirectory {
