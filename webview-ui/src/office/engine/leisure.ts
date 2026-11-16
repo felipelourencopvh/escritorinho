@@ -1,7 +1,8 @@
 /**
  * What resting agents do instead of only wandering: watch TV from a free sofa
- * facing one, make popcorn behind a kitchen counter, or chat with another
- * resting agent. DOM-free; OfficeState wires it into the character FSM.
+ * facing one, lounge on any other sofa, make popcorn behind a kitchen counter,
+ * or chat with another resting agent (walking over to it, or from the sofa
+ * with whoever sits nearby). DOM-free; OfficeState wires it into the character FSM.
  *
  * The FSM (characters.ts) only has three small hooks: a resting character
  * about to wander may start an activity instead (`tryStartLeisure`), arriving
@@ -16,8 +17,11 @@ import {
   LEISURE_CHAT_RANGE_TILES,
   LEISURE_CHAT_TURN_SEC,
   LEISURE_CHAT_WAIT_SEC,
+  LEISURE_COUCH_RANGE_TILES,
   LEISURE_KITCHEN_MAX_SEC,
   LEISURE_KITCHEN_MIN_SEC,
+  LEISURE_SOFA_MAX_SEC,
+  LEISURE_SOFA_MIN_SEC,
   LEISURE_TV_MAX_ROWS,
   LEISURE_TV_MAX_SEC,
   LEISURE_TV_MIN_SEC,
@@ -39,14 +43,16 @@ import { CharacterState, Direction } from '../types.js';
 /** Furniture that makes a spot, by asset id. */
 const TV_TYPES = new Set(['TV']);
 const KITCHEN_TYPES = new Set(['KITCHEN_COUNTER']);
+/** Lounge seating (any orientation: SOFA_FRONT, SOFA_SIDE:left…). */
+const isLoungeType = (type: string) => /^(SOFA|COUCH|ARMCHAIR)/.test(type);
 
 export interface LeisureSpot {
-  kind: 'tv' | 'kitchen';
+  kind: 'tv' | 'sofa' | 'kitchen';
   col: number;
   row: number;
   /** Which way to face there (toward the TV, out over the counter). */
   dir: Direction;
-  /** The chair it is, for a TV spot (only taken while no agent owns it). */
+  /** The chair it is, for a TV or sofa spot (only taken while no agent owns it). */
   seatUid?: string;
 }
 
@@ -54,8 +60,9 @@ const key = (col: number, row: number) => `${col},${row}`;
 
 /**
  * Where activities happen in this layout. TV: any chair facing up toward a TV
- * on the wall within LEISURE_TV_MAX_ROWS, roughly in line with it. Kitchen:
- * the walk-behind worktop row of each counter, where a free tile is left.
+ * on the wall within LEISURE_TV_MAX_ROWS, roughly in line with it. Sofa: every
+ * other seat of a sofa. Kitchen: the walk-behind worktop row of each counter,
+ * where a free tile is left.
  */
 export function findLeisureSpots(
   furniture: readonly PlacedFurniture[],
@@ -63,6 +70,7 @@ export function findLeisureSpots(
   blockedTiles: ReadonlySet<string>,
 ): LeisureSpot[] {
   const spots: LeisureSpot[] = [];
+  const tvSeats = new Set<string>();
   for (const item of furniture) {
     const entry = getCatalogEntry(item.type);
     if (!entry) continue;
@@ -74,6 +82,8 @@ export function findLeisureSpots(
         if (rows < 1 || rows > LEISURE_TV_MAX_ROWS) continue;
         if (seat.seatCol < item.col - LEISURE_TV_SIDE_SLACK) continue;
         if (seat.seatCol > item.col + entry.footprintW - 1 + LEISURE_TV_SIDE_SLACK) continue;
+        if (tvSeats.has(seat.uid)) continue; // in view of two TVs
+        tvSeats.add(seat.uid);
         spots.push({
           kind: 'tv',
           col: seat.seatCol,
@@ -89,6 +99,20 @@ export function findLeisureSpots(
         spots.push({ kind: 'kitchen', col, row: item.row, dir: Direction.DOWN });
       }
     }
+  }
+  // A seat's uid is its chair's, or `${chair}:N` for the next seats of a long one.
+  const typeOf = new Map(furniture.map((f) => [f.uid, f.type]));
+  for (const seat of seats.values()) {
+    if (tvSeats.has(seat.uid)) continue;
+    const type = typeOf.get(seat.uid.split(':')[0]);
+    if (!type || !isLoungeType(type)) continue;
+    spots.push({
+      kind: 'sofa',
+      col: seat.seatCol,
+      row: seat.seatRow,
+      dir: seat.facingDir,
+      seatUid: seat.uid,
+    });
   }
   return spots;
 }
@@ -173,11 +197,12 @@ function startWalk(
 
 /**
  * Called when a resting character would wander next: maybe start an activity
- * instead. Returns whether it did (the character is then walking to it).
+ * instead (`surely`: no dice, it has strolled enough). Returns whether it did
+ * (the character is then walking to it).
  */
-export function tryStartLeisure(ch: Character, world: LeisureWorld): boolean {
+export function tryStartLeisure(ch: Character, world: LeisureWorld, surely = false): boolean {
   const random = world.random ?? Math.random;
-  if (!restsFreely(ch) || random() >= LEISURE_CHANCE) return false;
+  if (!restsFreely(ch) || (!surely && random() >= LEISURE_CHANCE)) return false;
 
   const options: Array<() => boolean> = [];
 
@@ -186,7 +211,7 @@ export function tryStartLeisure(ch: Character, world: LeisureWorld): boolean {
       !(s.seatUid && world.seats.get(s.seatUid)?.assigned) &&
       !tileTaken(world, s.col, s.row, ch.id),
   );
-  for (const kind of ['tv', 'kitchen'] as const) {
+  for (const kind of ['tv', 'sofa', 'kitchen'] as const) {
     const ofKind = freeSpots.filter((s) => s.kind === kind);
     if (ofKind.length === 0) continue;
     options.push(() => {
@@ -196,7 +221,9 @@ export function tryStartLeisure(ch: Character, world: LeisureWorld): boolean {
       const timer =
         kind === 'tv'
           ? between(LEISURE_TV_MIN_SEC, LEISURE_TV_MAX_SEC, random)
-          : between(LEISURE_KITCHEN_MIN_SEC, LEISURE_KITCHEN_MAX_SEC, random);
+          : kind === 'sofa'
+            ? between(LEISURE_SOFA_MIN_SEC, LEISURE_SOFA_MAX_SEC, random)
+            : between(LEISURE_KITCHEN_MIN_SEC, LEISURE_KITCHEN_MAX_SEC, random);
       startWalk(ch, path, {
         kind,
         phase: 'going',
@@ -282,8 +309,8 @@ export function arriveAtLeisure(ch: Character): void {
   ch.dir = leisure.dir;
   ch.frame = 0;
   ch.frameTimer = 0;
-  if (leisure.kind === 'tv') {
-    // Sitting on the sofa: the seated frame, until the show is over.
+  if (leisure.kind === 'tv' || leisure.kind === 'sofa') {
+    // Sitting on the sofa: the seated frame, until the show (or the nap) is over.
     ch.state = CharacterState.TYPE;
     ch.seatTimer = leisure.timer;
   } else {
@@ -319,6 +346,56 @@ export function chatLine(turn: number, pairSeed: number): number {
   return 2 + ((pairSeed + turn * 7) % (CHAT_LINE_COUNT - 2));
 }
 
+const seated = (ch: Character | undefined): ch is Character & { leisure: CharacterLeisure } =>
+  !!ch &&
+  !!ch.leisure &&
+  (ch.leisure.kind === 'tv' || ch.leisure.kind === 'sofa') &&
+  ch.leisure.phase === 'at' &&
+  ch.state === CharacterState.TYPE &&
+  !ch.isActive;
+
+/**
+ * Two agents seated near each other (on the sofas, in front of the TV) chat
+ * from where they sit: the one who sat down last greets, the other answers,
+ * then small talk with a quiet beat after every exchange.
+ */
+function couchChat(
+  ch: Character,
+  leisure: CharacterLeisure,
+  world: Pick<LeisureWorld, 'characters'>,
+  now: number,
+): void {
+  let mate = leisure.couchMate !== undefined ? world.characters.get(leisure.couchMate) : undefined;
+  if (!seated(mate) || mate.leisure.couchMate !== ch.id) {
+    leisure.couchMate = undefined;
+    mate = undefined;
+    for (const other of world.characters.values()) {
+      if (other.id === ch.id || !seated(other) || other.leisure.couchMate !== undefined) continue;
+      const d = Math.abs(other.tileCol - ch.tileCol) + Math.abs(other.tileRow - ch.tileRow);
+      if (d > LEISURE_COUCH_RANGE_TILES) continue;
+      mate = other;
+      leisure.couchMate = other.id;
+      other.leisure.couchMate = ch.id;
+      leisure.startedAt = other.leisure.startedAt = now;
+      leisure.startedBy = other.leisure.startedBy = ch.id;
+      break;
+    }
+  }
+  if (!mate) {
+    ch.leisureBubble = null;
+    ch.leisureLine = null;
+    return;
+  }
+  // Beats of LEISURE_CHAT_TURN_SEC: first speaker, second speaker, silence.
+  const beat = Math.floor((now - (leisure.startedAt ?? now)) / LEISURE_CHAT_TURN_SEC);
+  const spoken = Math.floor(beat / 3) * 2 + (beat % 3);
+  const speaking = beat % 3 !== 2 && (beat % 3 === 0) === (ch.id === leisure.startedBy);
+  ch.leisureBubble = speaking ? 'talk' : null;
+  ch.leisureLine = speaking
+    ? chatLine(spoken, Math.min(ch.id, mate.id) * 31 + Math.max(ch.id, mate.id))
+    : null;
+}
+
 /** Once per frame, after the FSM: timers, bubbles, chat partners, interruptions. */
 export function tickLeisure(
   dt: number,
@@ -338,9 +415,13 @@ export function tickLeisure(
       if (ch.state !== CharacterState.WALK) endLeisure(ch, world);
       continue;
     }
-    if (leisure.kind === 'tv') {
+    if (leisure.kind === 'tv' || leisure.kind === 'sofa') {
       // The FSM stands it up when the show is over.
-      if (ch.state !== CharacterState.TYPE) endLeisure(ch, world);
+      if (ch.state !== CharacterState.TYPE) {
+        endLeisure(ch, world);
+        continue;
+      }
+      couchChat(ch, leisure, world, now);
       continue;
     }
     if (leisure.kind === 'chat') {

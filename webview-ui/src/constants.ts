@@ -17,8 +17,8 @@ export const WANDER_MOVES_BEFORE_REST_MIN = 3;
 export const WANDER_MOVES_BEFORE_REST_MAX = 6;
 // Escritorinho: shorter rests in the chair, so resting agents get up for the
 // TV, the kitchen and a chat more often (Pixel Agents rests 120-240 s).
-export const SEAT_REST_MIN_SEC = 40.0;
-export const SEAT_REST_MAX_SEC = 90.0;
+export const SEAT_REST_MIN_SEC = 3.0;
+export const SEAT_REST_MAX_SEC = 8.0;
 /** A helper (sub-agent) stays within this many tiles of its lead, any direction. */
 export const HELPER_FOLLOW_RADIUS_TILES = 2;
 /** A helper between two tool calls keeps sitting; it stands only after waiting this long. */
@@ -895,12 +895,17 @@ export const CHAT_PROMPT_POLL_MS = 1500;
 
 // ── Leisure (engine/leisure.ts): what resting agents do besides wandering ──
 /** Chance that a resting agent about to wander picks an activity instead. */
-export const LEISURE_CHANCE = 0.6;
+export const LEISURE_CHANCE = 0.8;
 export const LEISURE_TV_MIN_SEC = 18;
 export const LEISURE_TV_MAX_SEC = 45;
 /** How far below a wall TV (rows) a sofa still counts as facing it, and how far to the side. */
 export const LEISURE_TV_MAX_ROWS = 8;
 export const LEISURE_TV_SIDE_SLACK = 2;
+/** Lounging on a sofa with no TV in view. */
+export const LEISURE_SOFA_MIN_SEC = 20;
+export const LEISURE_SOFA_MAX_SEC = 50;
+/** Two agents seated this close (sofa or TV) chat from where they sit. */
+export const LEISURE_COUCH_RANGE_TILES = 3;
 export const LEISURE_KITCHEN_MIN_SEC = 8;
 export const LEISURE_KITCHEN_MAX_SEC = 14;
 export const LEISURE_CHAT_MIN_SEC = 8;

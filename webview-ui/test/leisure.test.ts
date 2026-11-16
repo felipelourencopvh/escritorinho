@@ -51,6 +51,7 @@ beforeAll(() => {
       canPlaceOnWalls: true,
     }),
     asset({ id: 'SOFA_BACK', category: 'chairs', orientation: 'back' }),
+    asset({ id: 'SOFA_SIDE', category: 'chairs', orientation: 'side' }),
     asset({
       id: 'KITCHEN_COUNTER',
       category: 'desks',
@@ -78,6 +79,7 @@ function office(): OfficeLayout {
     furniture: [
       { uid: 'tv', type: 'TV', col: 3, row: 0 },
       { uid: 'sofa', type: 'SOFA_BACK', col: 3, row: 5 },
+      { uid: 'side', type: 'SOFA_SIDE', col: 2, row: 5 },
       { uid: 'counter', type: 'KITCHEN_COUNTER', col: 6, row: 7 },
       { uid: 'microwave', type: 'MICROWAVE', col: 7, row: 7 },
     ],
@@ -108,13 +110,14 @@ function resting(id: number, col: number, row: number): Character {
   return ch;
 }
 
-test('spots: a sofa facing up toward the TV, and the counter worktop beside the microwave', () => {
+test('spots: a sofa facing the TV, another sofa to lounge on, and the counter worktop', () => {
   const w = world([]);
   assert.deepEqual(
-    w.spots.map((s) => ({ kind: s.kind, col: s.col, row: s.row, dir: s.dir })),
+    w.spots.map((s) => ({ kind: s.kind, col: s.col, row: s.row })),
     [
-      { kind: 'tv', col: 3, row: 5, dir: Direction.UP },
-      { kind: 'kitchen', col: 6, row: 7, dir: Direction.DOWN },
+      { kind: 'tv', col: 3, row: 5 },
+      { kind: 'kitchen', col: 6, row: 7 },
+      { kind: 'sofa', col: 2, row: 5 },
     ],
   );
 });
@@ -158,7 +161,7 @@ test('making popcorn shows the popcorn bubble, then ends', () => {
 test('a chat: the partner waits, both face each other and take turns talking', () => {
   const a = resting(1, 1, 8);
   const b = resting(2, 4, 8);
-  // No TV or kitchen free (both taken), so the only option is a chat.
+  // No TV, sofa or kitchen free (all taken), so the only option is a chat.
   const w = world([a, b]);
   const busy = w.spots.map((s, i) => {
     const other = resting(100 + i, s.col, s.row);
@@ -249,4 +252,52 @@ test('never starts while working, already busy, or on an unlucky roll', () => {
     false,
   );
   assert.equal(idle.leisure ?? null, null);
+});
+
+test('two agents seated near each other chat from the sofa, with a quiet beat', () => {
+  const a = resting(1, 3, 5);
+  const b = resting(2, 2, 5);
+  const w = world([a, b]);
+  for (const [ch, kind] of [
+    [a, 'tv'],
+    [b, 'sofa'],
+  ] as const) {
+    ch.leisure = {
+      kind,
+      phase: 'going',
+      col: ch.tileCol,
+      row: ch.tileRow,
+      dir: Direction.UP,
+      timer: 60,
+    };
+    arriveAtLeisure(ch);
+    assert.equal(ch.state, CharacterState.TYPE);
+  }
+  tickLeisure(0.1, w, 0); // a looks around first and finds b: a greets
+  assert.equal(a.leisure?.couchMate, 2);
+  assert.equal(b.leisure?.couchMate, 1);
+  assert.equal(a.leisureLine, 0);
+  assert.equal(b.leisureBubble, null);
+  tickLeisure(0.1, w, 1.7);
+  assert.equal(b.leisureLine, 1);
+  assert.equal(a.leisureBubble, null);
+  tickLeisure(0.1, w, 3.3); // the quiet beat
+  assert.equal(a.leisureBubble, null);
+  assert.equal(b.leisureBubble, null);
+  // b gets up: a stops talking, still lounging
+  b.isActive = true;
+  tickLeisure(0.1, w, 4.9);
+  tickLeisure(0.1, w, 5);
+  assert.equal(b.leisure, null);
+  assert.equal(a.leisure?.kind, 'tv');
+  assert.equal(a.leisure?.couchMate, undefined);
+  assert.equal(a.leisureBubble, null);
+});
+
+test('after enough strolls, an agent off duty surely goes to relax (the dice are skipped)', () => {
+  const ch = resting(1, 0, 9);
+  const unlucky = world([ch], () => 0.99);
+  assert.equal(tryStartLeisure(ch, unlucky), false);
+  assert.ok(tryStartLeisure(ch, unlucky, true));
+  assert.ok(ch.leisure);
 });

@@ -203,10 +203,9 @@ export function ToolOverlay({
         // A resting chat: what it says, in a speech bubble with words (the
         // office's other bubbles are pictures). Never over a permission or done bubble.
         if (!bubbleNode && ch.leisureBubble === 'talk' && ch.leisureLine != null) {
+          const partnerId = ch.leisure?.partnerId ?? ch.leisure?.couchMate;
           const partner =
-            ch.leisure?.partnerId !== undefined
-              ? officeState.characters.get(ch.leisure.partnerId)
-              : undefined;
+            partnerId !== undefined ? officeState.characters.get(partnerId) : undefined;
           const partnerName =
             agentNameFor(partner?.directoryName) ?? partner?.directoryName ?? t('chat.agent');
           const line = t(`chat.line${ch.leisureLine}` as MessageKey, {

@@ -103,7 +103,7 @@ export function updateCharacter(
   tileMap: TileTypeVal[][],
   blockedTiles: Set<string>,
   /** May start a resting activity instead of the next wander (engine/leisure.ts). */
-  startLeisure?: (ch: Character) => boolean,
+  startLeisure?: (ch: Character, surely?: boolean) => boolean,
 ): void {
   ch.frameTimer += dt;
 
@@ -186,34 +186,17 @@ export function updateCharacter(
       // Countdown wander timer
       ch.wanderTimer -= dt;
       if (ch.wanderTimer <= 0) {
-        // Check if we've wandered enough — return to seat for a rest
-        if (ch.wanderCount >= ch.wanderLimit && ch.seatId) {
-          const seat = seats.get(ch.seatId);
-          if (seat) {
-            const path = findPath(
-              ch.tileCol,
-              ch.tileRow,
-              seat.seatCol,
-              seat.seatRow,
-              tileMap,
-              blockedTiles,
-            );
-            if (path.length > 0) {
-              ch.path = path;
-              ch.moveProgress = 0;
-              ch.state = CharacterState.WALK;
-              ch.frame = 0;
-              ch.frameTimer = 0;
-              break;
-            }
-          }
-        }
-        if (startLeisure?.(ch)) {
-          // An activity counts as an outing: they still go back to rest at the desk.
-          ch.wanderCount++;
+        // Off duty, the desk is not where an agent rests (sitting there reads
+        // as working): after a few strolls it settles somewhere to relax —
+        // the sofa, the TV, the kitchen, a chat. Only work sends it to the desk.
+        const restless = ch.wanderCount >= ch.wanderLimit;
+        if (startLeisure?.(ch, restless)) {
+          ch.wanderCount = 0;
+          ch.wanderLimit = randomInt(WANDER_MOVES_BEFORE_REST_MIN, WANDER_MOVES_BEFORE_REST_MAX);
           ch.wanderTimer = randomRange(WANDER_PAUSE_MIN_SEC, WANDER_PAUSE_MAX_SEC);
           break;
         }
+        if (restless) ch.wanderCount = 0;
         if (walkableTiles.length > 0) {
           const target = walkableTiles[Math.floor(Math.random() * walkableTiles.length)];
           const path = findPath(

@@ -1255,14 +1255,18 @@ export class OfficeState {
             this.seats,
             this.tileMap,
             this.blockedTiles,
-            (resting) =>
-              tryStartLeisure(resting, {
-                spots: this.leisureSpots,
-                characters: this.characters,
-                seats: this.seats,
-                tileMap: this.tileMap,
-                blockedTiles: this.blockedTiles,
-              }),
+            (resting, surely) =>
+              tryStartLeisure(
+                resting,
+                {
+                  spots: this.leisureSpots,
+                  characters: this.characters,
+                  seats: this.seats,
+                  tileMap: this.tileMap,
+                  blockedTiles: this.blockedTiles,
+                },
+                surely,
+              ),
           ),
         );
       }

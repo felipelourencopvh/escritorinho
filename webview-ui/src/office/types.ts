@@ -114,7 +114,7 @@ export interface FurnitureCatalogEntry {
 
 /** What a resting character is doing instead of wandering (engine/leisure.ts). */
 export interface CharacterLeisure {
-  kind: 'tv' | 'kitchen' | 'chat';
+  kind: 'tv' | 'sofa' | 'kitchen' | 'chat';
   /** going: walking there; at: doing it; waiting: a chat partner holding still. */
   phase: 'going' | 'at' | 'waiting';
   col: number;
@@ -127,6 +127,8 @@ export interface CharacterLeisure {
   startedAt?: number;
   /** Who walked over to start the chat: it speaks first. */
   startedBy?: number;
+  /** On a sofa or watching TV: the agent seated nearby it chats with. */
+  couchMate?: number;
 }
 
 export interface PlacedFurniture {
