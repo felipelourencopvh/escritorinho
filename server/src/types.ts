@@ -30,6 +30,9 @@ export interface AgentState {
   hadToolsInTurn: boolean;
   /** Directory name — the agent's origin label (only set for multi-root workspaces) */
   directoryName?: string;
+  /** The working directory of an agent this host launched (standalone PTY agents):
+   *  where its desk (files dropped on it in the office) lives. */
+  cwd?: string;
   /** Timestamp of last JSONL data received (ms since epoch) */
   lastDataAt: number;
   /** Total JSONL lines processed for this agent */

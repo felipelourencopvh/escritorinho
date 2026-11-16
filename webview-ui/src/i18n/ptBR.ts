@@ -528,4 +528,14 @@ export const ptBR: Record<MessageKey, string> = {
   'chat.viewLabel': 'Visão do agente',
   'chat.tabChat': 'Chat',
   'chat.tabTerminal': 'Terminal',
+
+  // ── Desk (files dropped on an agent) ──
+  'chat.filesOnDesk': 'Coloquei estes arquivos na sua mesa:',
+  'chat.dropHere': 'Solte para colocar os arquivos na mesa de {name}',
+  'chat.attachments': 'Arquivos na mesa',
+  'chat.uploadFailed': 'Não deu para colocar este arquivo na mesa. Remova e tente de novo.',
+  'chat.uploading': 'enviando…',
+  'chat.removeAttachment': 'Remover {name}',
+  'chat.attach': 'Arquivos',
+  'chat.attachHint': 'Colocar arquivos na mesa de {name} (ou arraste até aqui)',
 };

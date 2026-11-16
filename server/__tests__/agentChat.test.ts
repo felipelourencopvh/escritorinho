@@ -49,6 +49,18 @@ describe('chatEntryFromRecord (Claude)', () => {
     expect(entry?.text).toBe('Look at this\n\nand this');
   });
 
+  it('shows a multi-line paste without the tags the CLI wraps it in', () => {
+    const entry = chatEntryFromRecord({
+      type: 'user',
+      uuid: 'u3',
+      message: {
+        content:
+          'Before\n<pasted_content id="dy4y">\nline one\n\nline two\n</pasted_content id="dy4y">\nafter',
+      },
+    });
+    expect(entry?.text).toBe('Before\nline one\n\nline two\nafter');
+  });
+
   it('leaves out tools, thinking, sub-agents, CLI lines and other records', () => {
     const skipped = [
       { type: 'assistant', uuid: 'a', message: { content: [{ type: 'tool_use', name: 'Read' }] } },
@@ -56,6 +68,13 @@ describe('chatEntryFromRecord (Claude)', () => {
       { type: 'user', uuid: 'u', message: { content: [{ type: 'tool_result', content: 'x' }] } },
       { type: 'user', uuid: 'u', isSidechain: true, message: { content: 'sub-agent prompt' } },
       { type: 'user', uuid: 'u', isMeta: true, message: { content: 'Caveat: …' } },
+      {
+        type: 'user',
+        uuid: 'u',
+        isCompactSummary: true,
+        isVisibleInTranscriptOnly: true,
+        message: { content: 'This session is being continued from a previous conversation…' },
+      },
       { type: 'user', uuid: 'u', message: { content: '<command-name>/clear</command-name>' } },
       {
         type: 'user',

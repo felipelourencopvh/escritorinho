@@ -11,6 +11,9 @@ export interface PendingChat {
 
 let nextPendingKey = 1;
 
+/** Compared ignoring whitespace runs: the CLI may re-wrap what it records. */
+const sameText = (text: string): string => text.replace(/\s+/g, ' ').trim();
+
 /**
  * One agent's conversation for the chat view: the history the host sends on
  * request, then every new line it broadcasts, deduped by uuid. A sent message
@@ -34,9 +37,9 @@ export function useAgentChat(agentId: number | null) {
         return fresh.length ? [...prev, ...fresh] : prev;
       });
       // The transcript now holds what was typed: the pending copy can go.
-      const typed = incoming.filter((e) => e.role === 'user').map((e) => e.text.trim());
+      const typed = incoming.filter((e) => e.role === 'user').map((e) => sameText(e.text));
       if (typed.length) {
-        setPending((prev) => prev.filter((p) => !typed.includes(p.text.trim())));
+        setPending((prev) => prev.filter((p) => !typed.includes(sameText(p.text))));
       }
     };
 

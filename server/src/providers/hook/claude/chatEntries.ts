@@ -4,7 +4,7 @@
  * Kept: prompts the user typed (`user` records whose content is text) and the
  * agent's text replies (`assistant` records' `text` blocks). Left out: tool
  * calls and results, thinking, sub-agents' records (`isSidechain`), the CLI's
- * own injected lines (`isMeta`), slash-command echoes and local command output,
+ * own injected lines (`isMeta`), compaction summaries (`isCompactSummary`), slash-command echoes and local command output,
  * and every non-message record type.
  */
 import type { ChatEntry } from '../../../../../core/src/messages.js';
@@ -25,6 +25,14 @@ const CLI_MARKUP_PREFIXES = [
   '<system-reminder>',
 ];
 
+/** Claude Code records a multi-line paste wrapped in these tags; the chat
+ *  shows what was pasted, without them. */
+const PASTED_CONTENT = /<pasted_content id="[^"]*">\n?([\s\S]*?)\n?<\/pasted_content id="[^"]*">/g;
+
+function unwrapPastes(text: string): string {
+  return text.replace(PASTED_CONTENT, '$1');
+}
+
 function textOf(content: unknown): string {
   if (typeof content === 'string') return content;
   if (!Array.isArray(content)) return '';
@@ -38,6 +46,8 @@ export function chatEntryFromRecord(record: unknown): ChatEntry | null {
   if (!isRecord(record)) return null;
   if (record.type !== 'user' && record.type !== 'assistant') return null;
   if (record.isSidechain === true || record.isMeta === true) return null;
+  // A compaction's summary is filed as a user prompt, but nobody typed it.
+  if (record.isCompactSummary === true || record.isVisibleInTranscriptOnly === true) return null;
   if (typeof record.uuid !== 'string') return null;
 
   const message = isRecord(record.message) ? record.message : undefined;
@@ -51,7 +61,7 @@ export function chatEntryFromRecord(record: unknown): ChatEntry | null {
     return null;
   }
 
-  const text = textOf(content).trim();
+  const text = unwrapPastes(textOf(content)).trim();
   if (!text) return null;
   if (record.type === 'user' && CLI_MARKUP_PREFIXES.some((p) => text.startsWith(p))) return null;
 

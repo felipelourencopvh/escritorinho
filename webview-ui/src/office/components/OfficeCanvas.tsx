@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useRef } from 'react';
 
+import { setChatViewMode } from '../../chat/chatViewMode.js';
+import { dragHasFiles, dropOnDesk } from '../../chat/deskAttachments.js';
 import {
   CAMERA_FOLLOW_LERP,
   CAMERA_FOLLOW_SNAP_THRESHOLD,
@@ -813,6 +815,38 @@ export function OfficeCanvas({
     onTap: performTap,
   });
 
+  // Files dropped on a character go on that agent's desk, and its chat opens
+  // with them attached. Elsewhere on the canvas a drop is not taken.
+  const agentUnderDrag = useCallback(
+    (e: React.DragEvent): number | null => {
+      if (isEditMode || !dragHasFiles(e.dataTransfer)) return null;
+      const pos = screenToWorld(e.clientX, e.clientY);
+      if (!pos) return null;
+      const hitId = officeState.getCharacterAt(pos.worldX, pos.worldY);
+      return hitId !== null && hitId > 0 ? hitId : null;
+    },
+    [isEditMode, screenToWorld, officeState],
+  );
+  const handleDragOver = useCallback(
+    (e: React.DragEvent) => {
+      if (agentUnderDrag(e) === null) return;
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'copy';
+    },
+    [agentUnderDrag],
+  );
+  const handleFileDrop = useCallback(
+    (e: React.DragEvent) => {
+      const id = agentUnderDrag(e);
+      if (id === null) return;
+      e.preventDefault();
+      dropOnDesk(id, e.dataTransfer.files);
+      setChatViewMode('chat');
+      onClick(id);
+    },
+    [agentUnderDrag, onClick],
+  );
+
   // Prevent default middle-click browser behavior (auto-scroll)
   const handleAuxClick = useCallback((e: React.MouseEvent) => {
     if (e.button === 1) e.preventDefault();
@@ -830,6 +864,8 @@ export function OfficeCanvas({
         onAuxClick={handleAuxClick}
         onMouseLeave={handleMouseLeave}
         onContextMenu={handleContextMenu}
+        onDragOver={handleDragOver}
+        onDrop={handleFileDrop}
         className="block touch-none"
       />
     </div>

@@ -251,3 +251,11 @@ export const CHAT_HISTORY_MAX_ENTRIES = 200;
 export const CHAT_SUBMIT_DELAY_MS = 120;
 /** The longest message the chat view may type into a terminal (the protocol's cap). */
 export const CHAT_MESSAGE_MAX_LENGTH = 20000;
+
+/** The desk: files dropped on an agent in the office land in this folder of
+ *  its working directory, through this route, up to this size each. */
+export const DESK_DIR_NAME = 'escritorinho-desk';
+export const DESK_ROUTE_PREFIX = '/api/desk';
+export const DESK_MAX_FILE_BYTES = 200 * 1024 * 1024;
+/** A dropped file's name, at most (longer ones keep their extension). */
+export const DESK_MAX_FILE_NAME_LENGTH = 120;

@@ -526,6 +526,16 @@ export const en = {
   'chat.viewLabel': 'Agent view',
   'chat.tabChat': 'Chat',
   'chat.tabTerminal': 'Terminal',
+
+  // ── Desk (files dropped on an agent) ──
+  'chat.filesOnDesk': 'I put these files on your desk:',
+  'chat.dropHere': "Drop to put these files on {name}'s desk",
+  'chat.attachments': 'Files on the desk',
+  'chat.uploadFailed': "Couldn't put this file on the desk. Remove it and try again.",
+  'chat.uploading': 'sending…',
+  'chat.removeAttachment': 'Remove {name}',
+  'chat.attach': 'Files',
+  'chat.attachHint': "Put files on {name}'s desk (or drag them here)",
 } as const;
 
 export type MessageKey = keyof typeof en;

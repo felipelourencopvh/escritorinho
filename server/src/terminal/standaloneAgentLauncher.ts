@@ -117,6 +117,7 @@ export function launchStandaloneAgent(
     providerId: provider.id,
     seatId: options.resume?.seatId,
   });
+  agent.cwd = cwd;
   if (options.resume) {
     // Its history is the past: replaying it would resurrect finished tools.
     try {

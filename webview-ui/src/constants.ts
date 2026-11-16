@@ -884,3 +884,6 @@ export const DIRECTORY_BRIEFING_MAX_LENGTH = 4000;
 export const CHAT_VIEW_MODE_STORAGE_KEY = 'escritorinho.chatViewMode';
 export const CHAT_INPUT_MAX_LENGTH = 20000;
 export const CHAT_STICK_TO_BOTTOM_PX = 48;
+
+/** The desk upload route (server: DESK_ROUTE_PREFIX). */
+export const DESK_ROUTE_PREFIX = '/api/desk';

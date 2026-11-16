@@ -1,3 +1,5 @@
+import { setChatViewMode } from '../chat/chatViewMode.js';
+import { dragHasFiles, dropOnDesk } from '../chat/deskAttachments.js';
 import { CARD_CONTEXT_BAR_HEIGHT_PX, CARD_MUGSHOT_CROP_TOP_ROW } from '../constants.js';
 import { useT } from '../i18n/index.js';
 import { ContextBar } from '../office/ContextBar.js';
@@ -69,6 +71,19 @@ export function AgentCard({
     <div
       className={`group relative pointer-events-auto flex items-stretch gap-1 p-1 cursor-pointer border-2 shrink-0 ${CARD_VARIANT[variant]}`}
       onClick={() => onSelect(agentId)}
+      // Files dropped on a card go on that agent's desk; its chat opens with them.
+      onDragOver={(e) => {
+        if (!dragHasFiles(e.dataTransfer)) return;
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'copy';
+      }}
+      onDrop={(e) => {
+        if (!dragHasFiles(e.dataTransfer)) return;
+        e.preventDefault();
+        dropOnDesk(agentId, e.dataTransfer.files);
+        setChatViewMode('chat');
+        onSelect(agentId);
+      }}
       title={appearance.name ?? t('agent.numbered', { id: agentId })}
     >
       <CharacterMugShot
