@@ -52,6 +52,7 @@ export type ServerMessage =
   | ConversationSearchResults
   | AgentChatHistory
   | AgentChatMessage
+  | AgentPrompt
   | TerminalAvailability
   | TerminalSessionOpened
   | TerminalSessionClosed
@@ -93,6 +94,8 @@ export type ClientMessage =
   | ResumeConversation
   | RequestAgentChat
   | SendAgentChat
+  | RequestAgentPrompt
+  | AnswerAgentPrompt
   | RequestDiagnostics;
 
 export interface ProviderCapabilities {
@@ -530,6 +533,23 @@ export interface AgentChatMessage {
   entry: ChatEntry;
 }
 
+export interface AgentPrompt {
+  type: 'agentPrompt';
+  id: number;
+  prompt?: TerminalPrompt;
+}
+
+export interface TerminalPrompt {
+  question: string;
+  detail?: string;
+  options: AnonymousSchema_304[];
+  selected: number;
+}
+
+export interface AnonymousSchema_304 {
+  label: string;
+}
+
 export interface TerminalAvailability {
   type: 'terminalAvailability';
   available: boolean;
@@ -749,6 +769,19 @@ export interface SendAgentChat {
   type: 'sendAgentChat';
   id: number;
   text: string;
+}
+
+export interface RequestAgentPrompt {
+  type: 'requestAgentPrompt';
+  id: number;
+}
+
+export interface AnswerAgentPrompt {
+  type: 'answerAgentPrompt';
+  id: number;
+  question: string;
+  option: number;
+  label: string;
 }
 
 export interface RequestDiagnostics {

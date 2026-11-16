@@ -538,4 +538,8 @@ export const ptBR: Record<MessageKey, string> = {
   'chat.removeAttachment': 'Remover {name}',
   'chat.attach': 'Arquivos',
   'chat.attachHint': 'Colocar arquivos na mesa de {name} (ou arraste até aqui)',
+
+  // ── Chat: a menu on the agent screen ──
+  'chat.promptAsks': '{name} está perguntando:',
+  'chat.seeInTerminal': 'Ver no terminal',
 };

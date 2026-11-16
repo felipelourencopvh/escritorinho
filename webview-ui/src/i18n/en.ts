@@ -536,6 +536,10 @@ export const en = {
   'chat.removeAttachment': 'Remove {name}',
   'chat.attach': 'Files',
   'chat.attachHint': "Put files on {name}'s desk (or drag them here)",
+
+  // ── Chat: a menu on the agent screen ──
+  'chat.promptAsks': '{name} is asking:',
+  'chat.seeInTerminal': 'See it in the terminal',
 } as const;
 
 export type MessageKey = keyof typeof en;

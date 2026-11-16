@@ -259,3 +259,9 @@ export const DESK_ROUTE_PREFIX = '/api/desk';
 export const DESK_MAX_FILE_BYTES = 200 * 1024 * 1024;
 /** A dropped file's name, at most (longer ones keep their extension). */
 export const DESK_MAX_FILE_NAME_LENGTH = 120;
+
+/** Pick-one menus read off an agent's screen (terminalPrompt.ts): how many
+ *  lines of context to show above the question, and the pause between the
+ *  keys that answer it (an arrow, then Enter). */
+export const TERMINAL_PROMPT_DETAIL_LINES = 14;
+export const TERMINAL_PROMPT_KEY_GAP_MS = 80;

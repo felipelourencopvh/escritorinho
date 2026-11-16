@@ -1043,7 +1043,7 @@ describe('clientMessageHandler: standalone terminal control plane', () => {
     expect(broadcasts).toHaveLength(0);
   });
 
-  it('launchAgent applies the persisted permission posture, not a per-launch field', () => {
+  it('launchAgent never skips permissions, whatever the client or the setting says', () => {
     const { manager, spawnArgs } = workingPtyManager();
 
     // Posture off: no flag, and a stale client field cannot turn it on — the
@@ -1054,16 +1054,16 @@ describe('clientMessageHandler: standalone terminal control plane', () => {
     );
     expect(spawnArgs[0]).not.toContain('--dangerously-skip-permissions');
 
-    // Posture on: every launch gets the flag without the client saying so.
+    // Asking to turn it on changes nothing: Escritorinho has no such mode.
     dispatch({ type: 'setBypassPermissions', enabled: true }, ctx());
     dispatch({ type: 'launchAgent' }, ctx({ runtime, ptyManager: manager }));
-    expect(spawnArgs[1]).toContain('--dangerously-skip-permissions');
+    expect(spawnArgs[1]).not.toContain('--dangerously-skip-permissions');
   });
 
-  it('setBypassPermissions persists via the adapter (standalone namespace)', () => {
+  it('setBypassPermissions is always stored as off (standalone namespace)', () => {
     dispatch({ type: 'setBypassPermissions', enabled: true }, ctx());
     const adapter = store.getAdapter()!;
-    expect(adapter.getSetting('pixel-agents.bypassPermissions', false)).toBe(true);
+    expect(adapter.getSetting('pixel-agents.bypassPermissions', true)).toBe(false);
 
     dispatch({ type: 'setBypassPermissions', enabled: false }, ctx());
     expect(adapter.getSetting('pixel-agents.bypassPermissions', true)).toBe(false);
@@ -1073,7 +1073,7 @@ describe('clientMessageHandler: standalone terminal control plane', () => {
     // Every launch reads the persisted posture, so an office still showing the
     // old value would be launching with a flag its Settings says is off.
     dispatch({ type: 'setBypassPermissions', enabled: true }, ctx());
-    expect(broadcasts).toContainEqual({ type: 'bypassPermissionsUpdated', enabled: true });
+    expect(broadcasts).toContainEqual({ type: 'bypassPermissionsUpdated', enabled: false });
 
     broadcasts = [];
     dispatch({ type: 'setBypassPermissions', enabled: false }, ctx());
@@ -1100,14 +1100,14 @@ describe('clientMessageHandler: standalone terminal control plane', () => {
     expect(spawnArgs[0]).not.toContain('--dangerously-skip-permissions');
   });
 
-  it('webviewReady reports the persisted permission posture in settingsLoaded', () => {
+  it('webviewReady always reports permissions as asked (no skip mode)', () => {
     dispatch({ type: 'setBypassPermissions', enabled: true }, ctx());
     sent = [];
 
     dispatch({ type: 'webviewReady' }, ctx());
 
     const settings = sent.find((m) => m.type === 'settingsLoaded');
-    expect(settings?.bypassPermissions).toBe(true);
+    expect(settings?.bypassPermissions).toBe(false);
   });
 
   // ── webviewReady: the host's own Directory ───────────────────

@@ -127,8 +127,6 @@ function App() {
     setAreaMappings,
     showAreas,
     setShowAreas,
-    bypassPermissions,
-    setBypassPermissions,
     showHostDirectories,
     setShowHostDirectories,
     officeReadOnly,
@@ -1000,12 +998,6 @@ function App() {
         showAreas={showAreas}
         onToggleShowAreas={onToggleShowAreas}
         showAreasAvailable={areasAvailable}
-        bypassPermissions={bypassPermissions}
-        onToggleBypassPermissions={() => {
-          const newVal = !bypassPermissions;
-          setBypassPermissions(newVal);
-          transport.send({ type: 'setBypassPermissions', enabled: newVal });
-        }}
         showHostDirectories={showHostDirectories}
         onToggleShowHostDirectories={() => {
           const newVal = !showHostDirectories;

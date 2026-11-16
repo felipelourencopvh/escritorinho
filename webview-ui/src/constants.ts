@@ -887,3 +887,6 @@ export const CHAT_STICK_TO_BOTTOM_PX = 48;
 
 /** The desk upload route (server: DESK_ROUTE_PREFIX). */
 export const DESK_ROUTE_PREFIX = '/api/desk';
+
+/** How often an open chat asks whether the agent's terminal shows a menu. */
+export const CHAT_PROMPT_POLL_MS = 1500;

@@ -132,6 +132,7 @@ components:
         # Agent chat (the chat view of an agent's conversation)
         - $ref: '#/components/schemas/AgentChatHistory'
         - $ref: '#/components/schemas/AgentChatMessage'
+        - $ref: '#/components/schemas/AgentPrompt'
         # Terminal (standalone embedded terminal control plane)
         - $ref: '#/components/schemas/TerminalAvailability'
         - $ref: '#/components/schemas/TerminalSessionOpened'
@@ -177,6 +178,8 @@ components:
         - $ref: '#/components/schemas/ResumeConversation'
         - $ref: '#/components/schemas/RequestAgentChat'
         - $ref: '#/components/schemas/SendAgentChat'
+        - $ref: '#/components/schemas/RequestAgentPrompt'
+        - $ref: '#/components/schemas/AnswerAgentPrompt'
         - $ref: '#/components/schemas/RequestDiagnostics'
       discriminator: type
 
@@ -1064,6 +1067,47 @@ components:
           items:
             $ref: '#/components/schemas/ChatEntry'
 
+    TerminalPrompt:
+      description: |
+        A pick-one menu an agent's terminal is showing (a permission request,
+        "trust this folder?"), as read off its screen.
+      type: object
+      additionalProperties: false
+      required: [question, options, selected]
+      properties:
+        question:
+          type: string
+        detail:
+          type: string
+          description: What it is about (a diff, a command), as shown above the question.
+        options:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [label]
+            properties:
+              label:
+                type: string
+        selected:
+          type: integer
+          description: The option the menu's pointer is on.
+
+    AgentPrompt:
+      description: |
+        The menu an agent's terminal is showing right now, or none. Sent
+        point-to-point in reply to `requestAgentPrompt`.
+      type: object
+      additionalProperties: false
+      required: [type, id]
+      properties:
+        type:
+          const: agentPrompt
+        id:
+          type: integer
+        prompt:
+          $ref: '#/components/schemas/TerminalPrompt'
+
     AgentChatMessage:
       description: |
         A new line of an agent's conversation, broadcast as the transcript is
@@ -1701,6 +1745,41 @@ components:
           const: removeDirectory
         path:
           type: string
+
+    RequestAgentPrompt:
+      description: >-
+        Ask which menu an agent's terminal is showing; the host replies
+        `agentPrompt` to this client only.
+      type: object
+      additionalProperties: false
+      required: [type, id]
+      properties:
+        type:
+          const: requestAgentPrompt
+        id:
+          type: integer
+
+    AnswerAgentPrompt:
+      description: >-
+        Pick an option of the menu an agent's terminal is showing, as a person
+        would with the keyboard. The host re-reads the screen first and sends
+        nothing unless that same question, with that option, is still there.
+      type: object
+      additionalProperties: false
+      required: [type, id, question, option, label]
+      properties:
+        type:
+          const: answerAgentPrompt
+        id:
+          type: integer
+        question:
+          type: string
+        option:
+          type: integer
+          minimum: 0
+        label:
+          type: string
+          description: The option's label, as the client was shown it.
 
     RequestAgentChat:
       description: >-

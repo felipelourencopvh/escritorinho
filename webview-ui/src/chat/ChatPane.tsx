@@ -17,7 +17,9 @@ import {
   removeDeskAttachment,
   takeDoneAttachments,
 } from './deskAttachments.js';
+import { Markdown } from './Markdown.js';
 import { useAgentChat } from './useAgentChat.js';
+import { useAgentPrompt } from './useAgentPrompt.js';
 import { useDeskAttachments } from './useDeskAttachments.js';
 
 interface ChatPaneProps {
@@ -52,6 +54,7 @@ export function ChatPane({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [dragOver, setDragOver] = useState(false);
   const attachments = useDeskAttachments(agentId);
+  const { prompt, answer } = useAgentPrompt(agentId);
   const uploading = attachments.some((a) => a.status === 'uploading');
   const ready = attachments.some((a) => a.status === 'done');
   const agentName = name ?? t('chat.agent');
@@ -66,7 +69,7 @@ export function ChatPane({
   useLayoutEffect(() => {
     const el = listRef.current;
     if (el && stickRef.current) el.scrollTop = el.scrollHeight;
-  }, [entries, pending, status]);
+  }, [entries, pending, status, prompt]);
   useEffect(() => {
     stickRef.current = true;
   }, [agentId]);
@@ -154,7 +157,44 @@ export function ChatPane({
             {t('chat.typing', { name: agentName })}
           </div>
         )}
-        {needsApproval && (
+        {prompt && (
+          <div
+            className="self-stretch flex flex-col gap-6 p-8 border-2 border-status-permission bg-bg-dark text-sm"
+            role="alert"
+            data-testid="chat-prompt"
+          >
+            <span className="text-text-muted text-xs">
+              {t('chat.promptAsks', { name: agentName })}
+            </span>
+            {prompt.detail && (
+              <pre className="m-0 max-h-200 overflow-auto pixel-scrollbar text-[0.78em] leading-snug bg-bg p-6 border-2 border-border whitespace-pre-wrap [overflow-wrap:anywhere]">
+                {prompt.detail}
+              </pre>
+            )}
+            <span className="text-text">{prompt.question}</span>
+            <div className="flex flex-col gap-4">
+              {prompt.options.map((option, i) => (
+                <Button
+                  key={`${i}:${option.label}`}
+                  variant={i === prompt.selected ? 'accent' : 'default'}
+                  size="sm"
+                  className="justify-start text-left whitespace-normal"
+                  onClick={() => answer(i)}
+                >
+                  {option.label}
+                </Button>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={onOpenTerminal}
+              className="self-start bg-transparent border-0 p-0 text-xs text-text-muted underline cursor-pointer"
+            >
+              {t('chat.seeInTerminal')}
+            </button>
+          </div>
+        )}
+        {needsApproval && !prompt && (
           <div
             className="self-stretch flex flex-col gap-6 p-8 border-2 border-status-permission bg-bg-dark text-sm"
             role="alert"
@@ -255,11 +295,14 @@ function Bubble({
     >
       <span className="text-2xs text-text-muted px-2">{label}</span>
       <div
-        className={`text-sm leading-snug py-6 px-8 border-2 max-w-full whitespace-pre-wrap [overflow-wrap:anywhere] select-text ${
-          mine ? 'bg-accent text-white border-accent' : 'bg-btn-bg text-text border-border'
+        className={`text-sm leading-snug py-6 px-8 border-2 max-w-full min-w-0 [overflow-wrap:anywhere] select-text ${
+          mine
+            ? 'bg-accent text-white border-accent whitespace-pre-wrap'
+            : 'bg-btn-bg text-text border-border'
         }`}
       >
-        {text}
+        {/* What you typed stays as typed; the agent's replies are markdown. */}
+        {mine ? text : <Markdown text={text} />}
       </div>
     </div>
   );

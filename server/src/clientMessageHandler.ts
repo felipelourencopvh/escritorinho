@@ -50,6 +50,7 @@ import { claudeProvider, hookProviderById, hookProviders } from './providers/ind
 import { recentCharactersMessage, recordCharacterUse } from './recentCharacters.js';
 import { launchStandaloneAgent } from './terminal/standaloneAgentLauncher.js';
 import type { TerminalSessions } from './terminal/terminalSessions.js';
+import { answerTerminalPrompt, parseTerminalPrompt, screenLines } from './terminalPrompt.js';
 import { applyUsageBridgeChoice, usageSnapshotMessages } from './usageLimits.js';
 
 type WsSend = (message: Record<string, unknown>) => void;
@@ -112,6 +113,9 @@ const KEY_WATCH_ALL_SESSIONS = 'pixel-agents.watchAllSessions';
 const KEY_HOOKS_INFO_SHOWN = 'pixel-agents.hooksInfoShown';
 const KEY_SHOW_AREAS = 'pixel-agents.showAreas';
 const KEY_BYPASS_PERMISSIONS = 'pixel-agents.bypassPermissions';
+/** Escritorinho has no "skip permissions" mode: every agent asks before acting.
+ *  The setting and its message stay (the protocol is shared), always off. */
+const SKIP_PERMISSIONS_ALLOWED = false;
 const KEY_SHOW_HOST_DIRECTORIES = 'pixel-agents.showHostDirectories';
 
 /** The provider whose conversations the sidebar lists and resumes: the first
@@ -193,7 +197,7 @@ export function handleClientMessage(
         { store, runtime, ptyManager: ctx.ptyManager, provider: claudeProvider },
         {
           directoryPath: msg.directoryPath as string | undefined,
-          bypassPermissions: adapter?.getSetting(KEY_BYPASS_PERMISSIONS, false) ?? false,
+          bypassPermissions: SKIP_PERMISSIONS_ALLOWED,
           palette: picked,
         },
       );
@@ -233,6 +237,50 @@ export function handleClientMessage(
       break;
     }
 
+    case 'requestAgentPrompt': {
+      const session = typeof msg.id === 'number' ? ctx.ptyManager?.get(msg.id) : undefined;
+      if (!session || session.hasExited) {
+        send({ type: 'agentPrompt', id: msg.id });
+        break;
+      }
+      const id = msg.id;
+      void screenLines(session)
+        .then((lines) => {
+          const prompt = parseTerminalPrompt(lines);
+          send({
+            type: 'agentPrompt',
+            id,
+            ...(prompt
+              ? {
+                  prompt: {
+                    question: prompt.question,
+                    ...(prompt.detail ? { detail: prompt.detail } : {}),
+                    options: prompt.options,
+                    selected: prompt.selected,
+                  },
+                }
+              : {}),
+          });
+        })
+        .catch(() => send({ type: 'agentPrompt', id }));
+      break;
+    }
+
+    case 'answerAgentPrompt': {
+      const session = typeof msg.id === 'number' ? ctx.ptyManager?.get(msg.id) : undefined;
+      if (
+        !session ||
+        session.hasExited ||
+        typeof msg.question !== 'string' ||
+        typeof msg.option !== 'number' ||
+        typeof msg.label !== 'string'
+      ) {
+        break;
+      }
+      void answerTerminalPrompt(session, msg.question, msg.option, msg.label).catch(() => {});
+      break;
+    }
+
     case 'sendAgentChat': {
       // Typed into the agent's own terminal: only one this host owns.
       if (typeof msg.id !== 'number' || typeof msg.text !== 'string') break;
@@ -268,7 +316,7 @@ export function handleClientMessage(
         { store, runtime, ptyManager: ctx.ptyManager, provider: conversationProvider },
         {
           directoryPath: resume.directoryPath,
-          bypassPermissions: adapter?.getSetting(KEY_BYPASS_PERMISSIONS, false) ?? false,
+          bypassPermissions: SKIP_PERMISSIONS_ALLOWED,
           palette: resume.look?.palette,
           resume: {
             sessionId: resume.sessionId,
@@ -481,7 +529,9 @@ export function handleClientMessage(
 
     case 'setBypassPermissions': {
       if (typeof msg.enabled !== 'boolean' || !adapter) break;
-      adapter.setSetting(KEY_BYPASS_PERMISSIONS, msg.enabled);
+      // Escritorinho never launches agents that skip their permission prompts:
+      // a request to turn it on is stored (and published) as off.
+      adapter.setSetting(KEY_BYPASS_PERMISSIONS, msg.enabled && SKIP_PERMISSIONS_ALLOWED);
       // Every launch reads the persisted posture, so every office must show it:
       // a second tab still reading "off" would launch with the flag regardless.
       // Published as read back, so a failed write shows the truth, not the ask.
@@ -825,7 +875,7 @@ function settingsSnapshot(adapter: StateAdapter | undefined) {
     hooksInfoShown: adapter?.getSetting(KEY_HOOKS_INFO_SHOWN, false) ?? false,
     externalAssetDirectories: readConfig().externalAssetDirectories,
     showAreas: adapter?.getSetting(KEY_SHOW_AREAS, false) ?? false,
-    bypassPermissions: adapter?.getSetting(KEY_BYPASS_PERMISSIONS, false) ?? false,
+    bypassPermissions: SKIP_PERMISSIONS_ALLOWED,
     showHostDirectories: adapter?.getSetting(KEY_SHOW_HOST_DIRECTORIES, false) ?? false,
   } as const;
 }
