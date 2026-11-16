@@ -1,5 +1,7 @@
 import { useRef, useState } from 'react';
 
+import { LOCALE_NAMES, LOCALES, setLocale, useLocale, useT } from '../i18n/index.js';
+import { translateDisclosure, translateServerText } from '../i18n/serverCopy.js';
 import { officeRadio } from '../music/musicEngine.js';
 import { useOfficeRadio } from '../music/useOfficeRadio.js';
 import { isSoundEnabled, setSoundEnabled } from '../notificationSound.js';
@@ -74,6 +76,8 @@ export function SettingsModal({
 }: SettingsModalProps) {
   // The office radio's player is a per-browser setting the radio keeps itself.
   const radio = useOfficeRadio();
+  const t = useT();
+  const locale = useLocale();
   const [soundLocal, setSoundLocal] = useState(isSoundEnabled);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [assetDirDraft, setAssetDirDraft] = useState('');
@@ -87,7 +91,23 @@ export function SettingsModal({
 
   return (
     <>
-      <Modal isOpen={isOpen} onClose={onClose} title="Settings">
+      <Modal isOpen={isOpen} onClose={onClose} title={t('settings.title')}>
+        <div className="flex items-center justify-between gap-8 py-4 px-10">
+          <span className="text-sm">{t('settings.language')}</span>
+          <div className="flex gap-4" role="group" aria-label={t('settings.language')}>
+            {LOCALES.map((l) => (
+              <Button
+                key={l}
+                size="sm"
+                variant={locale === l ? 'accent' : 'default'}
+                aria-pressed={locale === l}
+                onClick={() => setLocale(l)}
+              >
+                {LOCALE_NAMES[l]}
+              </Button>
+            ))}
+          </div>
+        </div>
         {/* Open Sessions Folder opens an OS file manager — impossible in the browser. */}
         {!isBrowserRuntime && (
           <MenuItem
@@ -96,7 +116,7 @@ export function SettingsModal({
               onClose();
             }}
           >
-            Open Sessions Folder
+            {t('settings.openSessionsFolder')}
           </MenuItem>
         )}
         <MenuItem
@@ -109,7 +129,7 @@ export function SettingsModal({
             onClose();
           }}
         >
-          Export Layout
+          {t('settings.exportLayout')}
         </MenuItem>
         <MenuItem
           onClick={() => {
@@ -122,7 +142,7 @@ export function SettingsModal({
             }
           }}
         >
-          Import Layout
+          {t('settings.importLayout')}
         </MenuItem>
         {isBrowserRuntime && (
           <input
@@ -147,7 +167,7 @@ export function SettingsModal({
             <input
               type="text"
               value={assetDirDraft}
-              placeholder="Absolute asset directory path"
+              placeholder={t('settings.assetDirPlaceholder')}
               onChange={(e) => setAssetDirDraft(e.target.value)}
               className="flex-1 min-w-0 text-xs py-2 px-4 bg-bg border-2 border-border rounded-none text-text"
             />
@@ -162,7 +182,7 @@ export function SettingsModal({
               }}
               className="shrink-0"
             >
-              Add
+              {t('common.add')}
             </Button>
           </div>
         ) : (
@@ -172,7 +192,7 @@ export function SettingsModal({
               onClose();
             }}
           >
-            Add Asset Directory
+            {t('settings.addAssetDirectory')}
           </MenuItem>
         )}
         {externalAssetDirectories.map((dir) => (
@@ -194,7 +214,7 @@ export function SettingsModal({
           </div>
         ))}
         <Checkbox
-          label="Sound Notifications"
+          label={t('settings.soundNotifications')}
           checked={soundLocal}
           onChange={() => {
             const newVal = !isSoundEnabled();
@@ -204,26 +224,26 @@ export function SettingsModal({
           }}
         />
         <Checkbox
-          label="Music Player"
-          title="The office radio's player, bottom of the office"
+          label={t('settings.musicPlayer')}
+          title={t('settings.musicPlayerHint')}
           checked={!radio.hidden}
           onChange={() => officeRadio.setHidden(!radio.hidden)}
         />
         <Checkbox
-          label="Watch All Sessions"
+          label={t('settings.watchAllSessions')}
           checked={watchAllSessions}
           onChange={onToggleWatchAllSessions}
         />
         <Checkbox
-          label="Instant Detection (Hooks)"
+          label={t('settings.instantDetection')}
           checked={hooksInstalled}
           onChange={onToggleHooksEnabled}
         />
         {usageBridge && (
           <>
             <Checkbox
-              label="Usage Bars"
-              title={`Your ${usageBridge.providerName} plan's weekly and 5-hour usage, top-left`}
+              label={t('settings.usageBars')}
+              title={t('settings.usageBarsHint', { provider: usageBridge.providerName })}
               checked={usageBridge.installed}
               onChange={() => {
                 if (usagePending) return;
@@ -232,12 +252,14 @@ export function SettingsModal({
               }}
             />
             {usageBridge.error && (
-              <div className="px-10 pb-4 text-xs text-status-error">{usageBridge.error}</div>
+              <div className="px-10 pb-4 text-xs text-status-error">
+                {translateServerText(usageBridge.error, locale)}
+              </div>
             )}
           </>
         )}
         <Checkbox
-          label="Always Show Labels"
+          label={t('settings.alwaysShowLabels')}
           checked={alwaysShowOverlay}
           onChange={onToggleAlwaysShowOverlay}
         />
@@ -245,20 +267,24 @@ export function SettingsModal({
           Standalone has no terminals at all, so nothing there would ever ghost. */}
         {!isBrowserRuntime && (
           <Checkbox
-            label="Display Headless as Ghosts"
+            label={t('settings.headlessAsGhosts')}
             checked={ghostHeadlessAgents}
             onChange={onToggleGhostHeadlessAgents}
           />
         )}
         {showAreasAvailable && (
-          <Checkbox label="Show Areas" checked={showAreas} onChange={onToggleShowAreas} />
+          <Checkbox
+            label={t('settings.showAreas')}
+            checked={showAreas}
+            onChange={onToggleShowAreas}
+          />
         )}
         {/* Permission posture, set once instead of per launch: while on, the host
           adds the CLI's skip-permissions flag to every agent it launches. */}
         <Checkbox
           label={
             <span className="flex items-center gap-4">
-              Skip Permissions
+              {t('settings.skipPermissions')}
               <PixelIcon name="warning" />
             </span>
           }
@@ -269,28 +295,34 @@ export function SettingsModal({
           host contributes: VS Code its workspace folders, standalone the
           directory the server was started from. */}
         <Checkbox
-          label={isBrowserRuntime ? 'Show Start Directory' : 'Show Workspace Folders'}
+          label={
+            isBrowserRuntime ? t('settings.showStartDirectory') : t('settings.showWorkspaceFolders')
+          }
           checked={showHostDirectories}
           onChange={onToggleShowHostDirectories}
         />
-        <Checkbox label="Debug View" checked={isDebugMode} onChange={onToggleDebugMode} />
+        <Checkbox
+          label={t('settings.debugView')}
+          checked={isDebugMode}
+          onChange={onToggleDebugMode}
+        />
       </Modal>
       {usageBridge && (
         <Modal
           isOpen={confirmUsageBars}
           onClose={() => setConfirmUsageBars(false)}
-          title="Show usage bars?"
+          title={t('settings.usageBarsConfirmTitle')}
           zIndex={60}
         >
           <div className="flex flex-col gap-8 px-10 pb-8 text-sm leading-snug max-w-md">
-            {usageBridge.disclosure.split('\n\n').map((paragraph) => (
+            {translateDisclosure(usageBridge.disclosure, locale).map((paragraph) => (
               <p key={paragraph} className="m-0">
                 {paragraph}
               </p>
             ))}
             <div className="flex justify-end gap-8 pt-4">
               <Button variant="ghost" onClick={() => setConfirmUsageBars(false)}>
-                Cancel
+                {t('common.cancel')}
               </Button>
               <Button
                 variant="accent"
@@ -299,7 +331,7 @@ export function SettingsModal({
                   setUsageBars(true);
                 }}
               >
-                Connect
+                {t('settings.connect')}
               </Button>
             </div>
           </div>

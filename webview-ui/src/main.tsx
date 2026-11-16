@@ -7,6 +7,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 
 import App from './App.tsx';
+import { LocaleProvider } from './i18n/LocaleProvider.js';
 import { isBrowserRuntime } from './runtime';
 
 async function main() {
@@ -18,7 +19,9 @@ async function main() {
   }
   createRoot(document.getElementById('root')!).render(
     <StrictMode>
-      <App />
+      <LocaleProvider>
+        <App />
+      </LocaleProvider>
     </StrictMode>,
   );
 }

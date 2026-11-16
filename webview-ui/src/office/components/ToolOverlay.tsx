@@ -19,6 +19,7 @@ import {
   TOOL_OVERLAY_VERTICAL_OFFSET,
 } from '../../constants.js';
 import type { SubagentCharacter } from '../../hooks/useExtensionMessages.js';
+import { translateStatus, useLocale, useT } from '../../i18n/index.js';
 import { ContextBar } from '../ContextBar.js';
 import { contextLeft } from '../contextGauge.js';
 import type { OfficeState } from '../engine/officeState.js';
@@ -113,6 +114,8 @@ export function ToolOverlay({
   alwaysShowOverlay,
 }: ToolOverlayProps) {
   const [, setTick] = useState(0);
+  const t = useT();
+  const locale = useLocale();
   useEffect(() => {
     let rafId = 0;
     const tick = () => {
@@ -334,7 +337,7 @@ export function ToolOverlay({
                       fontStyle: isSub ? 'italic' : undefined,
                     }}
                   >
-                    {activityText}
+                    {translateStatus(activityText, locale)}
                   </span>
                   {ch.directoryName && (
                     <span className="text-2xs leading-none overflow-hidden text-ellipsis block">
@@ -350,7 +353,7 @@ export function ToolOverlay({
                       e.stopPropagation();
                       onCloseAgent(id);
                     }}
-                    title="Close agent"
+                    title={t('agent.close')}
                     className="ml-2 shrink-0"
                   >
                     {/* The panel's padding favours the text (pb > pt) and the × fills

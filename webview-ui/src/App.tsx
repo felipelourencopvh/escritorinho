@@ -34,6 +34,7 @@ import { useKeyboardViewport } from './hooks/useKeyboardViewport.js';
 import { useLaunchActions } from './hooks/useLaunchActions.js';
 import { popClass, usePresence } from './hooks/usePresence.js';
 import { useTerminalDrawer } from './hooks/useTerminalDrawer.js';
+import { t as translate, useT } from './i18n/index.js';
 import { MobileMenu, MobileMenuButton } from './mobile/MobileMenu.js';
 import { MobileShell } from './mobile/MobileShell.js';
 import { useMobileMenu } from './mobile/useMobileMenu.js';
@@ -73,6 +74,7 @@ function getOfficeState(): OfficeState {
 }
 
 function App() {
+  const t = useT();
   // Browser runtime (dev or static dist): dispatch mock messages after the
   // useExtensionMessages listener has been registered.
   useEffect(() => {
@@ -469,10 +471,7 @@ function App() {
     (file: File) => {
       // Browser-native import (standalone): read + validate + apply directly,
       // bypassing the layoutLoaded message whose dirty guard would skip it.
-      if (
-        isEditDirty() &&
-        !window.confirm('Replace the current layout? Unsaved edits will be lost.')
-      ) {
+      if (isEditDirty() && !window.confirm(translate('app.replaceLayoutConfirm'))) {
         return;
       }
       const reader = new FileReader();
@@ -486,7 +485,7 @@ function App() {
             !Array.isArray(imported.tiles) ||
             !Array.isArray(imported.furniture)
           ) {
-            window.alert('Invalid layout file.');
+            window.alert(translate('app.invalidLayout'));
             return;
           }
           const migrated = migrateLayoutColors(imported as unknown as OfficeLayout);
@@ -498,7 +497,7 @@ function App() {
           });
           editor.markClean();
         } catch {
-          window.alert('Failed to read or parse layout file.');
+          window.alert(translate('app.layoutReadFailed'));
         }
       };
       reader.readAsText(file);
@@ -599,7 +598,7 @@ function App() {
               className="absolute left-1/2 -translate-x-1/2 z-11 bg-accent-bright text-white text-sm py-3 px-8 rounded-none border-2 border-accent shadow-pixel pointer-events-none whitespace-nowrap"
               style={{ top: editor.isDirty ? 64 : 8 }}
             >
-              Rotate (R)
+              {t('app.rotateHint')}
             </div>
           )}
 
@@ -692,7 +691,7 @@ function App() {
           Detection Active" before anything is installed would be a lie. */}
       {hooksEnabled && claudeHooksInstalled && !hooksInfoShown && !hooksTooltipDismissed && (
         <Tooltip
-          title="Instant Detection Active"
+          title={t('hooks.activeTitle')}
           position="top-right"
           onDismiss={() => {
             setHooksTooltipDismissed(true);
@@ -700,7 +699,7 @@ function App() {
           }}
         >
           <span className="text-sm text-text leading-none">
-            Your agents now respond in real-time.{' '}
+            {t('hooks.activeBody')}{' '}
             <span
               className="text-accent cursor-pointer underline"
               onClick={() => {
@@ -709,7 +708,7 @@ function App() {
                 transport.send({ type: 'setHooksInfoShown' });
               }}
             >
-              View more
+              {t('hooks.viewMore')}
             </span>
           </span>
         </Tooltip>
@@ -717,7 +716,7 @@ function App() {
 
       {officeReadOnly && (
         <div className="absolute mobile-safe-top left-1/2 -translate-x-1/2 z-10 text-sm text-text-muted pointer-events-none select-none whitespace-nowrap">
-          View only
+          {t('app.viewOnly')}
         </div>
       )}
 
@@ -881,31 +880,26 @@ function App() {
       <Modal
         isOpen={isHooksInfoOpen}
         onClose={() => setIsHooksInfoOpen(false)}
-        title="Instant Detection is ON"
+        title={t('hooks.infoTitle')}
         zIndex={52}
       >
         <div className="text-base text-text px-10" style={{ lineHeight: 1.4 }}>
-          <p className="mb-8">Your Pixel Agents office now reacts in real-time:</p>
+          <p className="mb-8">{t('hooks.infoIntro')}</p>
           <ul className="mb-8 pl-18 list-disc m-0">
-            <li className="text-sm mb-2">Permission prompts appear instantly</li>
-            <li className="text-sm mb-2">Turn completions detected the moment they happen</li>
-            <li className="text-sm mb-2">Sound notifications play immediately</li>
+            <li className="text-sm mb-2">{t('hooks.infoPermissions')}</li>
+            <li className="text-sm mb-2">{t('hooks.infoTurns')}</li>
+            <li className="text-sm mb-2">{t('hooks.infoSound')}</li>
           </ul>
-          <p className="mb-12 text-text-muted">
-            This works through Claude Code Hooks, small event listeners that notify Pixel Agents
-            whenever something happens in your Claude sessions.
-          </p>
+          <p className="mb-12 text-text-muted">{t('hooks.infoHow')}</p>
           <div className="text-center">
             <button
               onClick={() => setIsHooksInfoOpen(false)}
               className="py-4 px-20 text-lg bg-accent text-white border-2 border-accent rounded-none cursor-pointer shadow-pixel"
             >
-              Got it
+              {t('common.gotIt')}
             </button>
           </div>
-          <p className="mt-8 text-xs text-text-muted text-center">
-            To disable, go to Settings {'>'} Instant Detection
-          </p>
+          <p className="mt-8 text-xs text-text-muted text-center">{t('hooks.infoDisable')}</p>
         </div>
       </Modal>
       {/* Rendered at the composition root, not inside a launch surface: the
