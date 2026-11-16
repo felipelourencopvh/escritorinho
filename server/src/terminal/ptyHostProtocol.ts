@@ -11,6 +11,7 @@
 import * as os from 'os';
 import * as path from 'path';
 
+import { PIXEL_AGENTS_DIR } from '../constants.js';
 import type { CreateTerminalOptions, TerminalReplay } from './terminalSessions.js';
 
 export const PTY_HOST_PROTOCOL = 1;
@@ -87,9 +88,9 @@ export class LineDecoder {
 /** macOS limits a socket path to 104 bytes (Linux 108). */
 const MAX_SOCKET_PATH_BYTES = 103;
 
-/** Where the host lives: a 0700 directory under ~/.pixel-agents. */
+/** Where the host lives: a 0700 directory under ~/.escritorinho. */
 export function ptyHostDir(): string {
-  return path.join(os.homedir(), '.pixel-agents', 'pty-host');
+  return path.join(os.homedir(), PIXEL_AGENTS_DIR, 'pty-host');
 }
 
 export function defaultPtyHostSocket(): string {

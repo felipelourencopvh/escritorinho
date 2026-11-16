@@ -213,7 +213,7 @@ function isPixelAgentsHookCommand(homeDir, command) {
 
   const normalizedCommand = normalizePathForMatch(command);
   const currentHookPath = normalizePathForMatch(
-    path.join(homeDir, '.pixel-agents', 'hooks', 'claude-hook.js'),
+    path.join(homeDir, '.escritorinho', 'hooks', 'claude-hook.js'),
   );
 
   return (

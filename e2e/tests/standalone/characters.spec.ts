@@ -27,7 +27,7 @@ test.describe('Standalone / Characters', () => {
     page,
     standalone,
   }) => {
-    const profilesFile = path.join(standalone.tmpHome, '.pixel-agents', 'characters.json');
+    const profilesFile = path.join(standalone.tmpHome, '.escritorinho', 'characters.json');
     const readProfiles = () =>
       fs.existsSync(profilesFile)
         ? (JSON.parse(fs.readFileSync(profilesFile, 'utf-8')) as { name?: string; hat?: string }[])
@@ -88,7 +88,7 @@ test.describe('Standalone / Characters items', () => {
     page,
     standalone,
   }) => {
-    const dir = path.join(standalone.tmpHome, '.pixel-agents');
+    const dir = path.join(standalone.tmpHome, '.escritorinho');
     const read = <T>(name: string): T | null =>
       fs.existsSync(path.join(dir, name))
         ? (JSON.parse(fs.readFileSync(path.join(dir, name), 'utf-8')) as T)

@@ -104,9 +104,9 @@ export const ptBR: Record<MessageKey, string> = {
   'intro.usageShown': 'Seu uso agora aparece no canto superior esquerdo.',
   'intro.installFailedBody':
     'Algo deu errado ao gravar nas configurações do Claude Code, então o escritório vai acompanhar suas sessões do jeito mais lento. Não se preocupe: tudo continua funcionando e você pode tentar de novo quando quiser, em Configurações.',
-  'intro.doneBody':
-    'Aproveite seu escritório novo! Dúvidas, ideias ou pixel art para mostrar? Venha para o nosso Discord.',
-  'intro.joinDiscord': 'Entre no nosso Discord!',
+  'intro.doneBody': 'Aproveite seu escritório novo! Dúvidas ou ideias? Abra uma issue no GitHub.',
+  'intro.github': 'Ver o projeto no GitHub',
+  'changelog.upstream': 'Feito sobre o Pixel Agents',
   'intro.skip': 'Pular',
   'intro.connecting': 'Conectando...',
   'intro.showUsage': 'Mostrar uso',

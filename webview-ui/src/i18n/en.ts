@@ -104,9 +104,9 @@ export const en = {
   'intro.usageShown': 'Your usage now shows in the top-left corner.',
   'intro.installFailedBody':
     'Something went wrong writing to your Claude Code settings, so the office will watch your sessions the slower way instead. No worries, everything still works and you can retry activating them any time from Settings.',
-  'intro.doneBody':
-    'Enjoy your new office! Questions, ideas, or pixel art to show off? Come hang out in our Discord.',
-  'intro.joinDiscord': 'Join our Discord!',
+  'intro.doneBody': 'Enjoy your new office! Questions or ideas? Open an issue on GitHub.',
+  'intro.github': 'See the project on GitHub',
+  'changelog.upstream': 'Built on Pixel Agents',
   'intro.skip': 'Skip',
   'intro.connecting': 'Connecting...',
   'intro.showUsage': 'Show Usage',

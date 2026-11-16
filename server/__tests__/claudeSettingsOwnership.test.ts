@@ -23,8 +23,8 @@ const { installHooks } = await import('../src/providers/hook/claude/claudeHookIn
 const { isBareOurStatusLine, makeBareStatusLine } =
   await import('../src/providers/hook/claude/statusLineBridge.js');
 
-const OUR_HOOK = 'node "/home/u/.pixel-agents/hooks/claude-hook.js"';
-const OUR_STATUSLINE = 'node "/home/u/.pixel-agents/hooks/claude-statusline.js"';
+const OUR_HOOK = 'node "/home/u/.escritorinho/hooks/claude-hook.js"';
+const OUR_STATUSLINE = 'node "/home/u/.escritorinho/hooks/claude-statusline.js"';
 const WRAPPED_STATUSLINE = `${OUR_STATUSLINE} --wrap ${Buffer.from('echo hi').toString('base64url')}`;
 
 const ourEntry = (hook: Record<string, unknown> = {}, entry: Record<string, unknown> = {}) => ({
@@ -40,7 +40,7 @@ describe('isBareOurStatusLine', () => {
     ['our bare command, keys in another order', { command: OUR_STATUSLINE, type: 'command' }, true],
     [
       'our bare command, cased path',
-      { type: 'command', command: 'node "/home/u/.Pixel-Agents/Hooks/Claude-StatusLine.js"' },
+      { type: 'command', command: 'node "/home/u/.Escritorinho/Hooks/Claude-StatusLine.js"' },
       true,
     ],
     ['an extra field', { ...bare, padding: 0 }, false],
@@ -60,11 +60,11 @@ describe('isBareOurStatusLine', () => {
 
   it('holds for what install writes (the writer and the predicate stay one)', () => {
     expect(
-      isBareOurStatusLine(makeBareStatusLine('/home/u/.pixel-agents/hooks/claude-statusline.js')),
+      isBareOurStatusLine(makeBareStatusLine('/home/u/.escritorinho/hooks/claude-statusline.js')),
     ).toBe(true);
     expect(
       isBareOurStatusLine(
-        makeBareStatusLine('C:\\Users\\u\\.pixel-agents\\hooks\\claude-statusline.js'),
+        makeBareStatusLine('C:\\Users\\u\\.escritorinho\\hooks\\claude-statusline.js'),
       ),
     ).toBe(true);
   });

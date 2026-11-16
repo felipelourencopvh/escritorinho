@@ -23,7 +23,7 @@ describe('characterProfilesPersistence', () => {
   let originalHome: string | undefined;
   let watcher: { dispose(): void } | null = null;
 
-  const profilesFile = () => path.join(tempHome, '.pixel-agents', 'characters.json');
+  const profilesFile = () => path.join(tempHome, '.escritorinho', 'characters.json');
   const writeExternally = (value: unknown) => {
     fs.mkdirSync(path.dirname(profilesFile()), { recursive: true });
     fs.writeFileSync(profilesFile(), JSON.stringify(value));
@@ -47,7 +47,7 @@ describe('characterProfilesPersistence', () => {
     // a new $HOME is a new file: re-read
     process.env.HOME = fs.mkdtempSync(path.join(os.tmpdir(), 'pxl-profiles-bad-'));
     try {
-      const file = path.join(process.env.HOME, '.pixel-agents', 'characters.json');
+      const file = path.join(process.env.HOME, '.escritorinho', 'characters.json');
       fs.mkdirSync(path.dirname(file), { recursive: true });
       fs.writeFileSync(file, JSON.stringify([{ body: 'flat', colors: { hair: 'red' } }]));
       expect(getCharacterProfiles()).toEqual(DEFAULT_CHARACTER_PROFILES);
@@ -107,7 +107,7 @@ describe('characterProfilesPersistence', () => {
     expect(getCharacterProfiles()).toEqual(own);
   });
   describe('wardrobe items', () => {
-    const itemsFile = () => path.join(tempHome, '.pixel-agents', 'wardrobe-items.json');
+    const itemsFile = () => path.join(tempHome, '.escritorinho', 'wardrobe-items.json');
     const item = {
       id: 'custom_abc123',
       piece: 'hair',

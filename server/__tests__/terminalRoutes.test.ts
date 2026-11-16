@@ -32,7 +32,7 @@ import type {
 let tmpBase: string;
 
 // Isolated HOME: server.start() writes server.json + the registry entry, and a
-// test must never touch the developer's real ~/.pixel-agents.
+// test must never touch the developer's real ~/.escritorinho.
 vi.mock('os', async () => {
   const actual = await vi.importActual<typeof import('os')>('os');
   return { ...actual, homedir: () => tmpBase };
@@ -131,7 +131,7 @@ describe('terminal WebSocket auth', () => {
 
   beforeEach(async () => {
     tmpBase = fs.mkdtempSync(path.join(os.tmpdir(), 'pxl-terminal-test-'));
-    fs.mkdirSync(path.join(tmpBase, '.pixel-agents'), { recursive: true });
+    fs.mkdirSync(path.join(tmpBase, '.escritorinho'), { recursive: true });
     server = new PixelAgentsServer();
     ptyManager = fakeManager();
     const config = await server.start({

@@ -132,7 +132,7 @@ export function parseArgs(argv: string[]): CliArgs {
       args.ptyHostSocket = path.resolve(raw);
       i++;
     } else if (argv[i] === '--help') {
-      console.log(`Usage: pixel-agents [options]
+      console.log(`Usage: escritorinho [options]
 
 Options:
   --port, -p <number>   Port to listen on (default: OS-assigned ephemeral port)

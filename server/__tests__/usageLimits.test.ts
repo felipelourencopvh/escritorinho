@@ -134,8 +134,8 @@ describe('recordUsageReport', () => {
   });
 
   it('reads a corrupt file as nothing known', () => {
-    fs.mkdirSync(path.join(tmpBase, '.pixel-agents'), { recursive: true });
-    fs.writeFileSync(path.join(tmpBase, '.pixel-agents', 'usage-limits.json'), '{ nope');
+    fs.mkdirSync(path.join(tmpBase, '.escritorinho'), { recursive: true });
+    fs.writeFileSync(path.join(tmpBase, '.escritorinho', 'usage-limits.json'), '{ nope');
     expect(usageLimitsMessage('claude')).toEqual({ type: 'usageLimits', providerId: 'claude' });
   });
 

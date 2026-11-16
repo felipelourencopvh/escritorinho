@@ -1,14 +1,14 @@
 {
-  "name": "pixel-agents",
-  "displayName": "Pixel Agents",
-  "description": "Pixel art office where your Claude Code agents come to life as animated characters",
-  "version": "1.6.0",
-  "publisher": "pablodelucca",
+  "name": "escritorinho",
+  "displayName": "Escritorinho",
+  "description": "A pixel art office where you talk to your Claude Code agents: name them, chat with them, hand them files. English and Brazilian Portuguese.",
+  "version": "0.1.0",
+  "publisher": "escritorinho",
   "repository": {
     "type": "git",
-    "url": "https://github.com/pixel-agents-hq/pixel-agents"
+    "url": "https://github.com/felipelourencopvh/escritorinho"
   },
-  "homepage": "https://pixel-agents.com",
+  "homepage": "https://github.com/felipelourencopvh/escritorinho",
   "workspaces": [
     "server",
     "webview-ui"
@@ -30,7 +30,7 @@
   ],
   "main": "./dist/extension.js",
   "bin": {
-    "pixel-agents": "./dist/cli.js"
+    "escritorinho": "./dist/cli.js"
   },
   "files": [
     "CHANGELOG.md",
@@ -177,5 +177,9 @@
   },
   "optionalDependencies": {
     "@lydell/node-pty": "^1.2.0-beta.12"
-  }
+  },
+  "author": "Felipe Lourenço",
+  "contributors": [
+    "Pablo De Lucca and the Pixel Agents contributors (original project, MIT)"
+  ]
 }

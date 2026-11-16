@@ -23,7 +23,7 @@ function useHomeWithProfiles(count?: number): void {
   tempHomes.push(home);
   process.env.HOME = home;
   if (count === undefined) return;
-  const dir = path.join(home, '.pixel-agents');
+  const dir = path.join(home, '.escritorinho');
   fs.mkdirSync(dir, { recursive: true });
   const profiles = Array.from({ length: count }, (_, i) => ({
     name: `P${i}`,

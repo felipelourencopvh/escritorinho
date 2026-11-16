@@ -4,13 +4,15 @@
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 1.x.x   | :white_check_mark: |
+| 0.x.x   | :white_check_mark: |
 
 ## Reporting a Vulnerability
 
-Please report security vulnerabilities through [GitHub's private vulnerability reporting](https://github.com/pixel-agents-hq/pixel-agents/security/advisories/new).
+Please report security vulnerabilities through [GitHub's private vulnerability reporting](https://github.com/felipelourencopvh/escritorinho/security/advisories/new).
 
 **Do not open a public issue for security vulnerabilities.**
+
+A vulnerability in code Escritorinho shares with [Pixel Agents](https://github.com/pixel-agents-hq/pixel-agents) may affect it too: please report it to that project as well.
 
 We will acknowledge your report within 7 days and aim to release a fix within 30 days of confirmation.
 

@@ -12,7 +12,7 @@ import { isDeepStrictEqual } from 'util';
 import { HOOK_SCRIPTS_DIR } from '../../../constants.js';
 import { bundledScriptPath } from './bundledScripts.js';
 import { commandRunsScript } from './commandIdentity.js';
-import { CLAUDE_HOOK_SCRIPT_NAME, LEGACY_HOOK_SCRIPT_NAME } from './constants.js';
+import { CLAUDE_HOOK_SCRIPT_NAME } from './constants.js';
 
 /** A single hook entry in Claude Code's ~/.claude/settings.json hooks config. */
 export interface ClaudeHookEntry {
@@ -23,9 +23,6 @@ export interface ClaudeHookEntry {
     timeout?: number;
   }>;
 }
-
-/** Legacy script name (before rename to claude-hook.js), as a path suffix. */
-const LEGACY_HOOK_PATH_SUFFIX = `/${LEGACY_HOOK_SCRIPT_NAME}`;
 
 /** The path suffix we own: `/.pixel-agents/hooks/claude-hook.js`. The leading
  *  separator is load-bearing — without it `/opt/evil.pixel-agents/hooks/...`
@@ -83,8 +80,10 @@ const HOOK_PATH_SUFFIX = `/${HOOK_SCRIPTS_DIR}/${CLAUDE_HOOK_SCRIPT_NAME}`;
  *   hook for everyone if we resolved paths from a config file.
  */
 export function isOurHookCommand(command: string): boolean {
-  // Both suffix constants are lower-case, as commandRunsScript requires.
-  return commandRunsScript(command, [HOOK_PATH_SUFFIX, LEGACY_HOOK_PATH_SUFFIX]);
+  // Lower-case, as commandRunsScript requires. Escritorinho claims only its own
+  // script: never Pixel Agents' (its legacy `pixel-agents-hook.js` included),
+  // so installing or removing ours leaves another office's hooks alone.
+  return commandRunsScript(command, [HOOK_PATH_SUFFIX]);
 }
 
 /** A single hook object is ours. Tolerates junk elements (null, scalars) —

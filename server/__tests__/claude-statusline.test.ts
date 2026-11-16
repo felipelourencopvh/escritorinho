@@ -34,7 +34,7 @@ function startRecordingServer(): Promise<{
 }
 
 function writeRegistryEntry(port: number, token: string): void {
-  const dir = path.join(tmpBase, '.pixel-agents', 'servers');
+  const dir = path.join(tmpBase, '.escritorinho', 'servers');
   fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(
     path.join(dir, `${process.pid}-${port}.json`),

@@ -46,7 +46,7 @@ function statusLine(): Record<string, unknown> | undefined {
 }
 
 function scriptPath(): string {
-  return path.join(tmpBase, '.pixel-agents', 'hooks', 'claude-statusline.js');
+  return path.join(tmpBase, '.escritorinho', 'hooks', 'claude-statusline.js');
 }
 
 /** A user status line with every shell feature that must survive the wrap. */
@@ -191,7 +191,7 @@ describe('status line bridge installer', () => {
   });
 
   it('does not claim a lookalike script as ours', async () => {
-    const lookalike = `node "${path.join(tmpBase, 'evil.pixel-agents', 'hooks', 'claude-statusline.js')}"`;
+    const lookalike = `node "${path.join(tmpBase, 'evil.escritorinho', 'hooks', 'claude-statusline.js')}"`;
     writeSettings({ statusLine: { type: 'command', command: lookalike } });
 
     expect(isStatusLineBridgeInstalled()).toBe(false);

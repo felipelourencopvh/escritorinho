@@ -1,5 +1,7 @@
 # Pixel Agents — Compressed Reference
 
+> **Escritorinho fork.** This reference is inherited from Pixel Agents and still describes the shared architecture. Escritorinho differences: data lives in `~/.escritorinho/` (not `~/.pixel-agents/`), the CLI is `escritorinho`, there is no skip-permissions mode, and it adds i18n (`webview-ui/src/i18n/`), Directory agent names and briefings, the chat view (`webview-ui/src/chat/`, `server/src/agentChat.ts`, `server/src/terminalPrompt.ts`) and the desk (`server/src/deskRoutes.ts`). See README.md.
+
 Pixel art office where AI agents (Claude Code terminals today, any tool tomorrow) become animated characters. Ships as a **VS Code extension** and an **`npx pixel-agents` standalone CLI** from the same source tree.
 
 `CONTEXT.md` is the canonical glossary — read it for what terms like Agent, Sub-agent, Teammate, Lead, Adopt, or Headless agent mean here, and use its vocabulary in code, comments, and docs.

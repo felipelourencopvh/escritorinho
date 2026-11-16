@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
-import { DISCORD_INVITE_URL } from '../changelogData.js';
+import { CHANGELOG_REPO_URL } from '../changelogData.js';
 import { useCast } from '../characters/castStore.js';
 import { greeterPalette } from '../characters/profiles.js';
 import {
@@ -15,7 +15,7 @@ import { useLocale, useT } from '../i18n/index.js';
 import { translateDisclosure, translateServerText } from '../i18n/serverCopy.js';
 import type { OfficeState } from '../office/engine/officeState.js';
 import { useUsageBridge } from '../usage/useUsageBridge.js';
-import { DiscordIcon } from './ChangelogModal.js';
+import { GitHubIcon } from './ChangelogModal.js';
 import { computeIntroBubbleGeometry } from './introBubbleGeometry.js';
 import { Button } from './ui/Button.js';
 
@@ -382,13 +382,13 @@ export function IntroBubble({
             <p className="text-sm m-0 mb-8">{t('intro.doneBody')}</p>
             <p className="text-base text-center m-0 mt-12 mb-12">
               <a
-                href={DISCORD_INVITE_URL}
+                href={CHANGELOG_REPO_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-8 text-accent-bright hover:text-accent no-underline"
               >
-                <DiscordIcon />
-                {t('intro.joinDiscord')}
+                <GitHubIcon />
+                {t('intro.github')}
               </a>
             </p>
           </>

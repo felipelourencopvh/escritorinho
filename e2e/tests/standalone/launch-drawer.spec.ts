@@ -134,7 +134,7 @@ test.describe('Standalone / user-defined Directories', () => {
 
     // Machine-wide persistence, not page state: it comes back from the shared
     // config in the isolated HOME.
-    const configPath = path.join(standalone.tmpHome, '.pixel-agents', 'config.json');
+    const configPath = path.join(standalone.tmpHome, '.escritorinho', 'config.json');
     const cfg = JSON.parse(fs.readFileSync(configPath, 'utf8')) as {
       directories?: Array<{ name: string; path: string }>;
     };
@@ -213,7 +213,7 @@ test.describe('Standalone / Directory validation', () => {
     await expect(modal).toBeVisible();
     await expect(modal.getByRole('alert')).toContainText(missing);
 
-    const configPath = path.join(standalone.tmpHome, '.pixel-agents', 'config.json');
+    const configPath = path.join(standalone.tmpHome, '.escritorinho', 'config.json');
     const cfg = fs.existsSync(configPath)
       ? (JSON.parse(fs.readFileSync(configPath, 'utf8')) as {
           directories?: Array<{ name: string }>;
@@ -351,7 +351,7 @@ test.describe('Standalone / permission posture', () => {
     await setSettings(page, { bypassPermissions: true });
 
     // It is the host's persisted posture, in its own namespace.
-    const configPath = path.join(standalone.tmpHome, '.pixel-agents', 'config.json');
+    const configPath = path.join(standalone.tmpHome, '.escritorinho', 'config.json');
     await expect
       .poll(
         () => {

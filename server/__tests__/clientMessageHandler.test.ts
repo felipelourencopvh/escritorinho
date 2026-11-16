@@ -193,7 +193,7 @@ describe('clientMessageHandler: areas + carpet wire ordering', () => {
   describe('setHooksEnabled persistence', () => {
     /** Put our command on every installed event, as a real install would. */
     function seedInstalledHooks(): void {
-      const command = `node "${path.join(tempHome, '.pixel-agents', 'hooks', 'claude-hook.js')}"`;
+      const command = `node "${path.join(tempHome, '.escritorinho', 'hooks', 'claude-hook.js')}"`;
       const entry = { matcher: '', hooks: [{ type: 'command', command, timeout: 5 }] };
       fs.mkdirSync(path.join(tempHome, '.claude'), { recursive: true });
       fs.writeFileSync(
@@ -599,7 +599,7 @@ describe('clientMessageHandler: character profiles', () => {
   let sent: Array<Record<string, unknown>>;
   let broadcasts: Array<Record<string, unknown>>;
 
-  const profilesFile = () => path.join(tempHome, '.pixel-agents', 'characters.json');
+  const profilesFile = () => path.join(tempHome, '.escritorinho', 'characters.json');
   const ctx = (): ClientMessageContext => ({ store, cache: null, privileged: true });
 
   beforeEach(() => {
@@ -1241,7 +1241,7 @@ describe('clientMessageHandler: standalone terminal control plane', () => {
   });
 
   it('refuses external asset directory changes from an unprivileged client', () => {
-    // An asset directory is read from outside ~/.pixel-agents/ and its sprites
+    // An asset directory is read from outside ~/.escritorinho/ and its sprites
     // are sent back over the socket -- an untokened viewer must not choose it.
     const reloads: number[] = [];
     const untokened = ctx({ privileged: false, onReloadAssets: async () => void reloads.push(1) });

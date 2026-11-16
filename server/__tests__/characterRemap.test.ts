@@ -218,7 +218,7 @@ describe('saving a list that moves characters', () => {
     try {
       await new Promise((resolve) => setTimeout(resolve, 20));
       fs.writeFileSync(
-        path.join(tempHome, '.pixel-agents', 'characters.json'),
+        path.join(tempHome, '.escritorinho', 'characters.json'),
         JSON.stringify([ch('x'), ch('a'), ch('b'), ch('c')]),
       );
       await vi.waitFor(() => expect(broadcasts).toHaveLength(1), { timeout: 5000 });
@@ -237,7 +237,7 @@ describe('saving a list that moves characters', () => {
     try {
       await new Promise((resolve) => setTimeout(resolve, 20));
       fs.writeFileSync(
-        path.join(tempHome, '.pixel-agents', 'characters.json'),
+        path.join(tempHome, '.escritorinho', 'characters.json'),
         JSON.stringify([ch('x'), ch('y')]),
       );
       await vi.waitFor(() => expect(broadcasts).toHaveLength(1), { timeout: 5000 });
