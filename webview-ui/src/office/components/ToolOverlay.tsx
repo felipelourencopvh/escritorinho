@@ -368,7 +368,11 @@ export function ToolOverlay({
                   width={CONTEXT_GAUGE_WIDTH_PX}
                   height={CONTEXT_GAUGE_HEIGHT_PX}
                   style={{ marginTop: CONTEXT_GAUGE_GAP_PX }}
-                  title={`${Math.round(contextLeft(contextRatio) * 100)}% context left (${(ch.contextTokens / 1000).toFixed(0)}k of ${(ch.maxContextTokens / 1000).toFixed(0)}k tokens used)`}
+                  title={t('agent.contextLeftTokens', {
+                    pct: Math.round(contextLeft(contextRatio) * 100),
+                    used: (ch.contextTokens / 1000).toFixed(0),
+                    max: (ch.maxContextTokens / 1000).toFixed(0),
+                  })}
                   testId="context-gauge"
                   pct={Math.round(contextRatio * 100)}
                 />

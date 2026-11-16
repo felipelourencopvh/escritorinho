@@ -17,6 +17,8 @@ import { paintPickCanvas } from '../../components/ui/pickCanvas.js';
 import { PixelInputText } from '../../components/ui/PixelInputText.js';
 import { PixelText } from '../../components/ui/PixelText.js';
 import { CHARACTER_HEX_INSET_PX } from '../../constants.js';
+import { dataLabel } from '../../i18n/dataLabels.js';
+import { type MessageKey, useT } from '../../i18n/index.js';
 import { SWATCHES } from '../art/artColors.js';
 import { hsl01ToRgb, isAsDrawn, toColorize, wrapHue, ZERO_COLOR } from '../color.js';
 import { offeredParts } from '../items.js';
@@ -58,6 +60,17 @@ function parseHex(text: string): string | null {
   return `#${digits.toLowerCase()}`;
 }
 
+const EYE_ROW_LABELS: Record<(typeof EYE_ROWS)[number], MessageKey> = {
+  top: 'color.eyeTop',
+  bottom: 'color.eyeBottom',
+  both: 'color.eyeBoth',
+};
+const EYE_ROW_HINTS: Record<(typeof EYE_ROWS)[number], MessageKey> = {
+  top: 'color.eyeTopHint',
+  bottom: 'color.eyeBottomHint',
+  both: 'color.eyeBothHint',
+};
+
 const SQUARE_PX = 40;
 const HUE_PX = 64;
 
@@ -71,6 +84,8 @@ function Picker({
   gray: boolean;
 }) {
   const { renderer, profile, edit } = useStudio();
+  const t = useT();
+  const label = dataLabel(picker.label);
   const square = useRef<HTMLCanvasElement>(null);
   const hueBar = useRef<HTMLCanvasElement>(null);
   const live = useRef(value);
@@ -133,8 +148,8 @@ function Picker({
           id={`${id}-sb`}
           tabIndex={0}
           role="slider"
-          aria-label={`${picker.label} saturation and brightness`}
-          aria-valuetext={`saturation ${value.s}, brightness ${value.b}`}
+          aria-label={t('color.satBrightLabel', { label })}
+          aria-valuetext={t('color.satBrightValue', { s: value.s, b: value.b })}
           onPick={(fx, fy) =>
             write({ s: valueAt('s', live.current, fx), b: valueAt('b', live.current, 1 - fy) })
           }
@@ -167,7 +182,7 @@ function Picker({
           id={`${id}-h`}
           tabIndex={0}
           role="slider"
-          aria-label={`${picker.label} hue`}
+          aria-label={t('color.hueLabel', { label })}
           aria-valuenow={value.h}
           onPick={(_fx, fy) => write({ h: valueAt('h', live.current, fy) })}
           onKeyDown={(e) => {
@@ -192,7 +207,7 @@ function Picker({
             // remounted whenever the worn colour changes, so it always starts from it
             key={hex}
             className="chv-pick-hex"
-            aria-label={`${picker.label} hex`}
+            aria-label={t('color.hexLabel', { label })}
             defaultValue={hex}
             maxLength={7}
             spellCheck={false}
@@ -209,14 +224,14 @@ function Picker({
             variant="inline"
             className="chv-check"
             checked={!!value.colorize}
-            title="Colorize sets an absolute hue and saturation instead of shifting the original colours"
+            title={t('color.colorizeHint')}
             onChange={toggleColorize}
-            label="Colorize"
+            label={t('color.colorize')}
           />
         )}
       </div>
       <label className="chv-c-lab" htmlFor={`${id}-c`}>
-        Contrast
+        {t('editor.contrast')}
       </label>
       <output className="chv-c-out" htmlFor={`${id}-c`}>
         <PixelText text={String(value.c)} />
@@ -243,7 +258,7 @@ function ChoiceRow(props: {
 }) {
   return (
     <div className="chv-swatches">
-      <span className="chv-choice-label">{props.label}</span>
+      <span className="chv-choice-label">{dataLabel(props.label)}</span>
       {props.options.map((o) => (
         <button
           key={o.id}
@@ -253,7 +268,7 @@ function ChoiceRow(props: {
           title={o.title}
           onClick={o.onClick}
         >
-          {o.label}
+          {dataLabel(o.label)}
         </button>
       ))}
     </div>
@@ -262,6 +277,8 @@ function ChoiceRow(props: {
 
 export function ColorPanel({ picker }: { picker: ColorPicker }) {
   const { renderer, profile, edit, pickerOpen, setPickerOpen, cast } = useStudio();
+  const t = useT();
+  const label = dataLabel(picker.label);
   const key: ColorKey = picker.key;
   // gray clothes and hair nobody has coloured wear their default: that square reads as picked
   const fallback = profile.colors?.[key] ? null : renderer.defaultColor(profile, key);
@@ -293,7 +310,7 @@ export function ColorPanel({ picker }: { picker: ColorPicker }) {
   } else {
     // eyes, lashes and underwear: the art as drawn, then swatches fitted to the part's shading
     squares.push({
-      label: 'As drawn',
+      label: t('color.asDrawn'),
       hex: renderer.wayHex(art, ZERO_COLOR),
       value: () => ZERO_COLOR,
       pressed: asDrawnPressed,
@@ -319,13 +336,13 @@ export function ColorPanel({ picker }: { picker: ColorPicker }) {
 
   return (
     <div className="chv-colors">
-      <h2>{picker.label}</h2>
+      <h2>{label}</h2>
       <div className="chv-swatches">
         <button
           type="button"
           className="chv-sw chv-wheel"
-          title="Custom colour"
-          aria-label={`${picker.label}: custom colour`}
+          title={t('color.customColour')}
+          aria-label={t('color.customColourFor', { label })}
           aria-pressed={pickerOpen === key}
           onClick={() => setPickerOpen(pickerOpen === key ? null : key)}
         />
@@ -335,8 +352,8 @@ export function ColorPanel({ picker }: { picker: ColorPicker }) {
             type="button"
             className="chv-sw"
             style={sq.hex ? { background: sq.hex } : undefined}
-            title={sq.label}
-            aria-label={`${picker.label} ${sq.label}`}
+            title={dataLabel(sq.label)}
+            aria-label={`${label} ${dataLabel(sq.label)}`}
             aria-pressed={sq.pressed}
             onClick={() => choose(sq.value())}
           />
@@ -356,11 +373,11 @@ export function ColorPanel({ picker }: { picker: ColorPicker }) {
       {key === 'eyes' && (
         // which of each eye's two pixels takes the colour (the other is black pupil)
         <ChoiceRow
-          label="Colour on"
+          label={t('color.colourOn')}
           options={EYE_ROWS.map((rows) => ({
             id: rows,
-            label: rows[0].toUpperCase() + rows.slice(1),
-            title: `Colour the ${rows === 'both' ? 'whole eye' : `${rows} pixel of each eye`} in every frame`,
+            label: t(EYE_ROW_LABELS[rows]),
+            title: t(EYE_ROW_HINTS[rows]),
             pressed: (profile.eyeRows ?? DEFAULT_EYE_ROWS) === rows,
             onClick: () =>
               edit((p) => {

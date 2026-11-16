@@ -3,6 +3,7 @@ import { useEffect, useReducer, useRef } from 'react';
 import { castStore, useCast } from '../characters/castStore.js';
 import { characterLabel, newProfile } from '../characters/profiles.js';
 import type { RosterPick } from '../components/LaunchDrawer.js';
+import { useT } from '../i18n/index.js';
 import { LAUNCH_MENUS_CLOSED, launchMenusReducer } from './launchMenus.js';
 
 interface RosterLaunchInputs {
@@ -34,6 +35,7 @@ export function useRosterLaunch({
   escapeClosesDrawer,
 }: RosterLaunchInputs) {
   const cast = useCast();
+  const t = useT();
   const [{ menu, pick }, dispatch] = useReducer(launchMenusReducer, LAUNCH_MENUS_CLOSED);
   // The pick is a profile id; its index is read from the cast as it is now,
   // so a save from another office that renumbers the cast keeps the character.
@@ -99,7 +101,9 @@ export function useRosterLaunch({
       palette >= 0
         ? ({
             palette,
-            heading: `Launch ${characterLabel(cast.profiles[palette], palette)} in`,
+            heading: t('picker.launchHeading', {
+              name: characterLabel(cast.profiles[palette], palette),
+            }),
           } satisfies RosterPick)
         : undefined,
     /** The launch button (and desktop's hover over it): open the plain

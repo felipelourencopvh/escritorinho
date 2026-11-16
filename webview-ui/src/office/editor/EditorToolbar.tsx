@@ -843,7 +843,7 @@ function AreaCard({
               setRenaming(true);
             }}
             className="flex-1 text-sm text-text overflow-hidden text-ellipsis whitespace-nowrap"
-            title={`${area.label} — double-click to rename`}
+            title={t('editor.areaRenameHint', { name: area.label })}
           >
             {area.label}
           </span>

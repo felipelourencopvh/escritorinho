@@ -16,6 +16,7 @@ import {
   RECENT_CONVERSATIONS_COUNT,
 } from '../constants.js';
 import { prefersReducedMotion } from '../hooks/usePresence.js';
+import { type MessageKey, useT } from '../i18n/index.js';
 import { recentAcross } from './recent.js';
 import { timeAgo } from './timeAgo.js';
 import { type ConversationLimits, useConversations } from './useConversations.js';
@@ -67,6 +68,7 @@ export function ConversationList({
   // Conversations per Directory beyond the default five ("Show more"):
   // forgotten when a section opens or shuts, and on reload.
   const [limits, setLimits] = useState<ConversationLimits>({});
+  const t = useT();
   const list = useConversations(open, limits);
   // One open at a time: opening a Directory shuts the one that was open.
   const [openPath, setOpenPath] = useState(storedOpenPath);
@@ -86,7 +88,7 @@ export function ConversationList({
   if (list === null || list.directories.length === 0) {
     return (
       <p className="flex-1 m-0 px-10 py-8 text-sm text-text-muted">
-        {list === null ? 'Loading…' : 'No Directories yet.'}
+        {list === null ? t('common.loading') : t('conv.noDirectories')}
       </p>
     );
   }
@@ -100,15 +102,15 @@ export function ConversationList({
           action={
             onSearch && recent.length > 0 ? (
               <TextButton testId="conversations-see-all" onPress={() => onSearch({})}>
-                See all
+                {t('conv.seeAll')}
               </TextButton>
             ) : undefined
           }
         >
-          Recent
+          {t('conv.recent')}
         </SectionHeading>
         {recent.length === 0 ? (
-          <p className="m-0 px-10 py-2 text-xs text-text-muted">No conversations</p>
+          <p className="m-0 px-10 py-2 text-xs text-text-muted">{t('conv.none')}</p>
         ) : (
           recent.map(({ conversation, directory }) => (
             <ConversationRow
@@ -123,7 +125,7 @@ export function ConversationList({
           ))
         )}
       </section>
-      <SectionHeading>By Directory</SectionHeading>
+      <SectionHeading>{t('conv.byDirectory')}</SectionHeading>
       {list.directories.map((directory) => (
         <DirectorySection
           key={directory.path}
@@ -147,6 +149,7 @@ export function ConversationList({
 
 /** Looks like a search field; pressing it opens the search (ConversationSearch). */
 function SearchField({ onPress, roomy }: { onPress: () => void; roomy: boolean }) {
+  const t = useT();
   return (
     <div className="px-8 pt-8">
       <button
@@ -156,7 +159,7 @@ function SearchField({ onPress, roomy }: { onPress: () => void; roomy: boolean }
         className={`w-full flex items-center gap-6 px-6 ${roomy ? 'py-6' : 'py-3'} bg-bg-dark border-2 border-border rounded-none cursor-text text-left text-sm text-text-muted hover:border-accent`}
       >
         <PixelIcon name="search" scale={1} />
-        Search conversations
+        {t('conv.search')}
       </button>
     </div>
   );
@@ -242,6 +245,7 @@ function DirectorySection({
   onSearch,
 }: SectionProps) {
   const { conversations } = directory;
+  const t = useT();
   const empty = conversations.length === 0;
   const runningIds = conversations.flatMap((c) => (c.agentId !== undefined ? [c.agentId] : []));
   const running = runningIds.length > 0;
@@ -273,7 +277,7 @@ function DirectorySection({
         {/* A rule along the bottom: where its drawer ends. */}
         {directory.conversations.length === 0 ? (
           <p className="m-0 px-10 py-4 border-b-2 border-border text-xs text-text-muted">
-            No conversations
+            {t('conv.none')}
           </p>
         ) : (
           <div className="py-2 border-b-2 border-border">
@@ -291,14 +295,14 @@ function DirectorySection({
               <div className="flex items-center justify-between gap-8 pl-8 pr-6 pt-2 pb-2">
                 {directory.more ? (
                   <TextButton testId="conversations-show-more" onPress={onShowMore}>
-                    {`Show ${CONVERSATIONS_SHOW_MORE_STEP} more`}
+                    {t('conv.showMore', { n: CONVERSATIONS_SHOW_MORE_STEP })}
                   </TextButton>
                 ) : (
                   <span />
                 )}
                 {onSearch && (
                   <TextButton testId="conversations-directory-search" onPress={onSearch}>
-                    See all
+                    {t('conv.seeAll')}
                   </TextButton>
                 )}
               </div>
@@ -379,12 +383,13 @@ export interface RowProps {
 export function ConversationRow({ conversation, where, onPress, statusFor, now, roomy }: RowProps) {
   const { title, updatedAt, palette, repeat, agentId } = conversation;
   const status = agentId !== undefined ? statusFor(agentId) : null;
+  const t = useT();
   return (
     <button
       type="button"
       data-testid="conversation-row"
       onClick={onPress}
-      title={agentId !== undefined ? `Go to "${title}"` : `Resume "${title}"`}
+      title={agentId !== undefined ? t('conv.goTo', { title }) : t('conv.resume', { title })}
       className={`w-full flex items-center gap-8 px-10 ${roomy ? 'py-8' : where ? 'py-3' : 'py-5'} bg-transparent border-none rounded-none cursor-pointer text-left text-text hover:bg-btn-bg`}
     >
       <span className="shrink-0 flex" style={{ width: MUGSHOT_CROP_SIDE_PX }}>
@@ -436,12 +441,20 @@ interface RowTrailProps {
  * A row's end: running, its agent card's status colour in place of the time,
  * as a round dot (a square one reads as a stop button); else how long ago.
  */
+const STATUS_LABEL: Record<TabStatus, MessageKey> = {
+  idle: 'conv.statusIdle',
+  working: 'conv.statusWorking',
+  attention: 'conv.statusAttention',
+  disconnected: 'conv.statusDisconnected',
+};
+
 function RowTrail({ running, status, at, now, push = false, testId }: RowTrailProps) {
+  const t = useT();
   if (running) {
     return (
       <span
         data-testid={testId}
-        aria-label={status ?? 'running'}
+        aria-label={t(status ? STATUS_LABEL[status] : 'conv.statusRunning')}
         className={`shrink-0 flex ${push ? 'ml-auto ' : ''}mx-4 ${status ? STATUS_DOT[status] : 'text-text-muted'}`}
       >
         <PixelIcon name="dot" scale={1} />

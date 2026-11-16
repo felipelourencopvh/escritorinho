@@ -8,8 +8,9 @@ export const ROOT_MIN = 50;
 export const ROOT_MAX = 58;
 
 const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-/** "D mixolydian" */
-export const keyLabel = (song: Song): string => `${NOTE_NAMES[song.root % 12]} ${song.modeName}`;
+/** "D mixolydian" (`modeName`: the mode's name as shown, the English one by default). */
+export const keyLabel = (song: Song, modeName: string = song.modeName): string =>
+  `${NOTE_NAMES[song.root % 12]} ${modeName}`;
 
 /** A tune as a short shareable code: mood, key and seed, "TOWN-5-8F3A21C0". */
 export const songCode = (song: Song): string =>

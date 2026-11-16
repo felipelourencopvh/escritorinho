@@ -7,6 +7,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 import { PixelIcon } from '../../components/ui/PixelIcon.js';
+import { type MessageKey, useT } from '../../i18n/index.js';
 import { castStore } from '../castStore.js';
 import { ArmedButton } from './ArmedButton.js';
 import { type CastActions, useCastActions } from './castActions.js';
@@ -18,32 +19,31 @@ import { ViewButton } from './ViewButton.js';
 const FRONT: SpriteView = { kind: 'frame', facing: 'down', frame: 0 };
 
 /** The roster's actions on the cast, as both rosters list them. */
-const ROSTER_ACTIONS: { label: string; title?: string; run: (a: CastActions) => void }[] = [
-  { label: 'Duplicate', run: (a) => a.duplicate() },
+const ROSTER_ACTIONS: { label: MessageKey; title?: MessageKey; run: (a: CastActions) => void }[] = [
+  { label: 'roster.duplicate', run: (a) => a.duplicate() },
   {
-    label: 'New random',
-    title: 'Add a new character with random clothes, hair and colours',
+    label: 'roster.newRandom',
+    title: 'roster.newRandomHint',
     run: (a) => a.addRandom(),
   },
   {
-    label: 'Randomize',
-    title: 'Re-roll the character you are editing',
+    label: 'roster.randomize',
+    title: 'roster.randomizeHint',
     run: (a) => a.randomizeCurrent(),
   },
   {
-    label: 'Save PNG',
-    title: 'Save the character you are editing as a single sprite sheet',
+    label: 'roster.savePng',
+    title: 'roster.savePngHint',
     run: (a) => void a.savePng(),
   },
   {
-    label: 'Save config',
-    title:
-      "Save this character's settings (parts, colours, pixel edits) as a .json file you can load back later",
+    label: 'roster.saveConfig',
+    title: 'roster.saveConfigHint',
     run: (a) => void a.saveConfig(),
   },
   {
-    label: 'Load config',
-    title: 'Add characters from saved .json config files',
+    label: 'roster.loadConfig',
+    title: 'roster.loadConfigHint',
     run: (a) => a.loadConfigs(),
   },
 ];
@@ -51,13 +51,14 @@ const ROSTER_ACTIONS: { label: string; title?: string; run: (a: CastActions) => 
 /** Undo and Redo, for the desktop header and the phone's More sheet. */
 export function HistoryButtons() {
   const { cast, undo, redo } = useStudio();
+  const t = useT();
   return (
     <>
-      <ViewButton title="Undo (⌘Z)" icon="undo" disabled={!cast.canUndo} onClick={undo}>
-        Undo
+      <ViewButton title={t('roster.undoHint')} icon="undo" disabled={!cast.canUndo} onClick={undo}>
+        {t('common.undo')}
       </ViewButton>
-      <ViewButton title="Redo (⇧⌘Z)" icon="redo" disabled={!cast.canRedo} onClick={redo}>
-        Redo
+      <ViewButton title={t('roster.redoHint')} icon="redo" disabled={!cast.canRedo} onClick={redo}>
+        {t('common.redo')}
       </ViewButton>
     </>
   );
@@ -66,16 +67,19 @@ export function HistoryButtons() {
 export function RosterPane() {
   const { renderer, cast, dpr } = useStudio();
   const actions = useCastActions();
+  const t = useT();
   return (
-    <section className="chv-box chv-roster" aria-label="Roster">
-      <h2>Roster</h2>
+    <section className="chv-box chv-roster" aria-label={t('toolbar.roster')}>
+      <h2>{t('toolbar.roster')}</h2>
       <div className="chv-rail">
         {cast.profiles.map((p, i) => (
           <div key={i} className="chv-card" aria-current={i === cast.current}>
             <button
               type="button"
               className="chv-card-pick"
-              aria-label={`Edit ${p.name || `character ${i}`}`}
+              aria-label={t('launch.editNamed', {
+                name: p.name || t('roster.characterN', { n: i }),
+              })}
               onClick={() => castStore.select(i)}
             >
               <SpriteCanvas sheet={renderer.sheet(p)} view={FRONT} scale={2} dpr={dpr} />
@@ -83,8 +87,8 @@ export function RosterPane() {
             </button>
             <input
               value={p.name ?? ''}
-              placeholder="Name"
-              aria-label={`Name for char_${i}`}
+              placeholder={t('common.name')}
+              aria-label={t('roster.nameFor', { file: `char_${i}` })}
               onChange={(e) => {
                 const name = e.target.value;
                 castStore.updateAt(i, (draft) => {
@@ -96,7 +100,7 @@ export function RosterPane() {
               <button
                 type="button"
                 className="chv-card-x"
-                aria-label={`Remove char_${i}`}
+                aria-label={t('roster.removeNamed', { file: `char_${i}` })}
                 onClick={() => actions.remove(i)}
               >
                 <PixelIcon name="close" scale={1} />
@@ -105,21 +109,25 @@ export function RosterPane() {
           </div>
         ))}
         <button type="button" className="chv-card chv-card-add" onClick={actions.add}>
-          + New character
+          {t('roster.newCharacter')}
         </button>
       </div>
       <div className="chv-roster-actions">
         {ROSTER_ACTIONS.map((action) => (
-          <ViewButton key={action.label} title={action.title} onClick={() => action.run(actions)}>
-            {action.label}
+          <ViewButton
+            key={action.label}
+            title={action.title && t(action.title)}
+            onClick={() => action.run(actions)}
+          >
+            {t(action.label)}
           </ViewButton>
         ))}
         <ViewButton
           className="chv-roster-zip"
-          title="Save every character's sheet and config in one .zip"
+          title={t('roster.saveZipHint')}
           onClick={() => void actions.saveRoster()}
         >
-          Save roster .zip
+          {t('roster.saveZip')}
         </ViewButton>
       </div>
     </section>
@@ -130,17 +138,18 @@ export function RosterPane() {
 function MoreSheet({ onClose }: { onClose: () => void }) {
   const { profile, cast } = useStudio();
   const actions = useCastActions();
+  const t = useT();
   const run = (action: () => void) => () => {
     onClose();
     action();
   };
   return (
-    <div className="chv-box chv-more" role="dialog" aria-label="Character actions">
+    <div className="chv-box chv-more" role="dialog" aria-label={t('roster.actions')}>
       <label className="chv-more-name">
-        <span>Name</span>
+        <span>{t('common.name')}</span>
         <input
           value={profile.name ?? ''}
-          placeholder="Name"
+          placeholder={t('common.name')}
           onChange={(e) => {
             const name = e.target.value;
             castStore.update((draft) => {
@@ -153,18 +162,18 @@ function MoreSheet({ onClose }: { onClose: () => void }) {
         <HistoryButtons />
         {ROSTER_ACTIONS.map((action) => (
           <ViewButton key={action.label} onClick={run(() => action.run(actions))}>
-            {action.label}
+            {t(action.label)}
           </ViewButton>
         ))}
         <ArmedButton
           as={ViewButton}
-          label="Remove"
-          confirmLabel="Tap to confirm"
+          label={t('roster.remove')}
+          confirmLabel={t('roster.tapToConfirm')}
           disabled={cast.profiles.length < 2}
           onConfirm={run(() => actions.remove(cast.current))}
         />
         <ViewButton primary onClick={run(() => void actions.saveRoster())}>
-          Save roster .zip
+          {t('roster.saveZip')}
         </ViewButton>
       </div>
     </div>
@@ -175,6 +184,7 @@ export function PhoneDock() {
   const { renderer, cast, dpr, phoneMode, setPhoneMode, editor, closeEditor } = useStudio();
   const actions = useCastActions();
   const [moreOpen, setMoreOpen] = useState(false);
+  const t = useT();
   const rail = useRef<HTMLDivElement>(null);
   const dock = useRef<HTMLElement>(null);
 
@@ -213,7 +223,7 @@ export function PhoneDock() {
   const editing = phoneMode !== 'wardrobe';
   return (
     <>
-      <nav ref={dock} className="chv-dock" aria-label="Roster">
+      <nav ref={dock} className="chv-dock" aria-label={t('toolbar.roster')}>
         <div className="chv-dock-rail" ref={rail}>
           {cast.profiles.map((p, i) => (
             <button
@@ -221,7 +231,7 @@ export function PhoneDock() {
               type="button"
               className="chv-mcard"
               aria-current={i === cast.current}
-              aria-label={`Edit ${p.name || `char_${i}`}`}
+              aria-label={t('launch.editNamed', { name: p.name || `char_${i}` })}
               onClick={() => {
                 if (i === cast.current) return;
                 castStore.select(i);
@@ -237,7 +247,7 @@ export function PhoneDock() {
           <button
             type="button"
             className="chv-dbtn"
-            title="Add a new character"
+            title={t('roster.addNewHint')}
             onClick={() => {
               if (editor) closeEditor();
               setPhoneMode('wardrobe');
@@ -245,12 +255,12 @@ export function PhoneDock() {
             }}
           >
             <PixelIcon name="plus" />
-            <span>New</span>
+            <span>{t('roster.new')}</span>
           </button>
           <button
             type="button"
             className="chv-dbtn chv-dbtn-primary"
-            title="Edit this character's sheet frame by frame"
+            title={t('roster.editSheetHint')}
             onClick={() => {
               setMoreOpen(false);
               if (editor) closeEditor();
@@ -258,17 +268,17 @@ export function PhoneDock() {
             }}
           >
             <PixelIcon name={editing ? 'check' : 'pencil'} />
-            <span>{editing ? 'Done' : 'Edit'}</span>
+            <span>{editing ? t('roster.done') : t('roster.edit')}</span>
           </button>
           <button
             type="button"
             className="chv-dbtn chv-dock-more"
             aria-expanded={moreOpen}
-            title="More actions"
+            title={t('roster.moreHint')}
             onClick={() => setMoreOpen((open) => !open)}
           >
             <PixelIcon name="more" />
-            <span>More</span>
+            <span>{t('roster.more')}</span>
           </button>
         </div>
       </nav>

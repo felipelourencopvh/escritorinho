@@ -108,7 +108,7 @@ export function AgentCard({
           used={contextUsed}
           height={CARD_CONTEXT_BAR_HEIGHT_PX}
           className="absolute left-0 right-0 bottom-0 pointer-events-none"
-          title={`${Math.round(contextLeft(contextUsed) * 100)}% context left`}
+          title={t('agent.contextLeft', { pct: Math.round(contextLeft(contextUsed) * 100) })}
           testId="card-context-bar"
         />
       )}

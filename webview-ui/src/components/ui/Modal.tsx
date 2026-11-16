@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { useEffect, useRef } from 'react';
 
 import { usePresence } from '../../hooks/usePresence.js';
+import { useT } from '../../i18n/index.js';
 import { Button } from './Button.js';
 import { PixelIcon } from './PixelIcon.js';
 
@@ -51,6 +52,7 @@ export function Modal({
 }: ModalProps) {
   // Kept on screen while it drops away.
   const { mounted, closing } = usePresence(isOpen);
+  const t = useT();
   useEscapeCloses(isOpen, onClose);
   if (!mounted) return null;
 
@@ -79,7 +81,7 @@ export function Modal({
               (changelog, settings) scrolls under it. */}
           <div className="sticky top-0 z-10 bg-bg flex items-center justify-between py-4 px-10 border-b border-border mb-4">
             <span className="text-accent-bright text-2xl">{title}</span>
-            <Button variant="ghost" size="icon" onClick={onClose} title="Close">
+            <Button variant="ghost" size="icon" onClick={onClose} title={t('common.close')}>
               <PixelIcon name="close" />
             </Button>
           </div>

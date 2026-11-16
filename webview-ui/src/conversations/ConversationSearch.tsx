@@ -10,6 +10,7 @@ import {
   CONVERSATION_SEARCH_PAGE,
   CONVERSATION_SEARCH_PREFETCH_PX,
 } from '../constants.js';
+import { useT } from '../i18n/index.js';
 import { transport } from '../transport/index.js';
 import { ConversationRow, type ConversationSearchScope } from './ConversationList.js';
 
@@ -38,11 +39,12 @@ interface ConversationSearchProps {
  */
 export function ConversationSearch(props: ConversationSearchProps) {
   const { scope, onClose, zIndex } = props;
+  const t = useT();
   return (
     <Modal
       isOpen={scope !== null}
       onClose={onClose}
-      title="Conversations"
+      title={t('conv.title')}
       zIndex={zIndex}
       className="w-[min(520px,100%)]"
     >
@@ -69,6 +71,7 @@ function SearchBody({
   roomy = false,
 }: ConversationSearchProps & { scope: ConversationSearchScope }) {
   const [query, setQuery] = useState('');
+  const t = useT();
   const [sent, setSent] = useState('');
   const [directory, setDirectory] = useState(scope.directoryPath ? scope : null);
   const [limit, setLimit] = useState(CONVERSATION_SEARCH_PAGE);
@@ -131,7 +134,9 @@ function SearchBody({
           type="text"
           value={query}
           placeholder={
-            directory ? `Search ${directory.directoryName ?? ''}` : 'Search conversations'
+            directory
+              ? t('conv.searchIn', { name: directory.directoryName ?? '' })
+              : t('conv.search')
           }
           spellCheck={false}
           autoCapitalize="off"
@@ -149,7 +154,7 @@ function SearchBody({
               setDirectory(null);
               setLimit(CONVERSATION_SEARCH_PAGE);
             }}
-            title="Search every Directory"
+            title={t('conv.searchEverywhere')}
             className="flex items-center gap-6 max-w-full py-1 px-6 bg-active-bg border-2 border-accent rounded-none cursor-pointer text-2xs text-text"
           >
             <span className="min-w-0 truncate">{directory.directoryName}</span>
@@ -180,13 +185,15 @@ function SearchBody({
         {shown.length === 0 && (
           <p className="m-0 px-10 py-8 text-sm text-text-muted">
             {current === null
-              ? 'Searching…'
+              ? t('conv.searching')
               : sent
-                ? 'No conversation matches.'
-                : 'No conversations yet.'}
+                ? t('conv.noMatches')
+                : t('conv.noneYet')}
           </p>
         )}
-        {loadingMore && <p className="m-0 px-10 py-8 text-sm text-text-muted">Loading more…</p>}
+        {loadingMore && (
+          <p className="m-0 px-10 py-8 text-sm text-text-muted">{t('conv.loadingMore')}</p>
+        )}
       </div>
     </div>
   );

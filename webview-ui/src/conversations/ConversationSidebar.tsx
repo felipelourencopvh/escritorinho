@@ -2,6 +2,7 @@ import type { TabStatus } from '../components/AgentCard.js';
 import { Button } from '../components/ui/Button.js';
 import { CONVERSATION_SIDEBAR_WIDTH_PX, SIDE_PANEL_CONTENT_SHIFT_PX } from '../constants.js';
 import { useSlidePanel } from '../hooks/useSlidePanel.js';
+import { useT } from '../i18n/index.js';
 import { ConversationList, type ConversationSearchScope } from './ConversationList.js';
 
 /**
@@ -39,6 +40,7 @@ export function ConversationSidebar({
 }: ConversationSidebarProps) {
   const { rendered, shown, panelTransition, contentTransition, onPanelTransitionEnd } =
     useSlidePanel(open, { initiallyOpen: open });
+  const t = useT();
 
   if (!rendered) return null;
 
@@ -52,7 +54,7 @@ export function ConversationSidebar({
       onTransitionEnd={onPanelTransitionEnd}
     >
       <aside
-        aria-label="Recent conversations"
+        aria-label={t('conv.recentLabel')}
         data-testid="conversation-sidebar"
         className="h-full shrink-0 flex flex-col"
         style={{
@@ -78,7 +80,7 @@ export function ConversationSidebar({
             className={`w-full text-left ${isSettingsOpen ? '' : 'text-text! hover:bg-btn-hover'}`}
             onClick={onToggleSettings}
           >
-            Settings
+            {t('settings.title')}
           </Button>
         </div>
       </aside>

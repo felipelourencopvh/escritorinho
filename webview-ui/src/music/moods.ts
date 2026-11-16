@@ -4,6 +4,7 @@
  * mood. Tables only (and chooseMood); composer.ts writes the tunes.
  */
 
+import type { MessageKey, Translate } from '../i18n/index.js';
 import { newSeed, rng, type Weighted } from './rng.js';
 
 /** The moods, in the order the player lists them. */
@@ -19,6 +20,19 @@ export const MOOD_KEYS = [
 ] as const;
 export type MoodKey = (typeof MOOD_KEYS)[number];
 export type MoodSetting = MoodKey | 'auto';
+const MOOD_LABEL: Record<MoodSetting, MessageKey> = {
+  auto: 'music.moodAuto',
+  town: 'music.moodTown',
+  route: 'music.moodRoute',
+  lab: 'music.moodLab',
+  night: 'music.moodNight',
+  orbit: 'music.moodOrbit',
+  rain: 'music.moodRain',
+  dawn: 'music.moodDawn',
+  arcade: 'music.moodArcade',
+};
+/** A mood's name, as the player shows it (MOODS' labels are the English ones). */
+export const moodName = (t: Translate, m: MoodSetting) => t(MOOD_LABEL[m]);
 export type Mode = 'ionian' | 'dorian' | 'mixolydian' | 'aeolian' | 'lydian';
 export type HarmStyle = 'arp8' | 'arp16' | 'echo' | 'thirds' | 'off' | 'pad';
 export type BassStyle = 'roots' | 'rootfifth' | 'pulse8' | 'walk' | 'long';

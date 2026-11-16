@@ -46,7 +46,9 @@ let current: Locale = readStoredLocale();
 const listeners = new Set<() => void>();
 
 function applyDocumentLang(locale: Locale): void {
-  if (typeof document !== 'undefined') document.documentElement.lang = locale;
+  // globalThis: this module also runs in Node (webview unit tests), with no DOM types.
+  const doc = (globalThis as { document?: { documentElement: { lang: string } } }).document;
+  if (doc) doc.documentElement.lang = locale;
 }
 applyDocumentLang(current);
 

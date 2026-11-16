@@ -12,8 +12,9 @@ import {
   MUSIC_VISUALIZER_HEIGHT_PX,
 } from '../constants.js';
 import { useDismiss } from '../hooks/useDismiss.js';
+import { type MessageKey, useT } from '../i18n/index.js';
 import { findTouch } from '../touch/touchPrimitives.js';
-import { MOODS } from './moods.js';
+import { moodName } from './moods.js';
 import { officeRadio } from './musicEngine.js';
 import { FULL_PLAYER, playerFit } from './playerFit.js';
 import { moveSheetDrag, releaseSheetDrag, type SheetDrag, startSheetDrag } from './playerSheet.js';
@@ -22,6 +23,15 @@ import { RadioSettingsPanel } from './RadioSettingsPanel.js';
 import { keyLabel, songCode } from './songCode.js';
 import { useOfficeRadio } from './useOfficeRadio.js';
 import { VolumeControl } from './VolumeControl.js';
+
+/** The key's mode names (MODE_NAME in moods.ts), as the player shows them. */
+const MODE_LABEL: Readonly<Record<string, MessageKey>> = {
+  major: 'music.modeMajor',
+  minor: 'music.modeMinor',
+  dorian: 'music.modeDorian',
+  mixolydian: 'music.modeMixolydian',
+  lydian: 'music.modeLydian',
+};
 
 /** Bar heights move in whole steps of this many px (pixel look). */
 const BAR_STEP_PX = 2;
@@ -142,6 +152,7 @@ const FRAME = {
  */
 export function MusicPlayer({ mobile }: { mobile: boolean }) {
   const radio = useOfficeRadio();
+  const t = useT();
   const [open, setOpen] = useState(false);
   // Phone only: whether the player is out (it starts tucked away each load).
   const [shown, setShown] = useState(false);
@@ -196,8 +207,8 @@ export function MusicPlayer({ mobile }: { mobile: boolean }) {
           variant={radio.playing ? 'active' : 'default'}
           className="w-32! h-32! shrink-0"
           onClick={() => void officeRadio.toggle()}
-          aria-label={radio.playing ? 'Pause music' : 'Play music'}
-          title={radio.playing ? 'Pause music' : 'Play music'}
+          aria-label={radio.playing ? t('music.pause') : t('music.playMusic')}
+          title={radio.playing ? t('music.pause') : t('music.playMusic')}
         >
           <PixelIcon name={radio.playing ? 'pause' : 'next'} />
         </Button>
@@ -205,8 +216,8 @@ export function MusicPlayer({ mobile }: { mobile: boolean }) {
           size="icon_lg"
           className="w-32! h-32! shrink-0"
           onClick={() => officeRadio.skip()}
-          aria-label="Next tune"
-          title="Next tune"
+          aria-label={t('music.next')}
+          title={t('music.next')}
         >
           <PixelIcon name="skip" />
         </Button>
@@ -216,7 +227,8 @@ export function MusicPlayer({ mobile }: { mobile: boolean }) {
               {song.name}
             </span>
             <span className="text-2xs text-text-muted truncate">
-              {MOODS[song.moodKey].label} · {keyLabel(song)}
+              {moodName(t, song.moodKey)} ·{' '}
+              {keyLabel(song, MODE_LABEL[song.modeName] && t(MODE_LABEL[song.modeName]))}
             </span>
           </div>
         )}
@@ -228,8 +240,8 @@ export function MusicPlayer({ mobile }: { mobile: boolean }) {
           className="w-28! h-32! shrink-0"
           onClick={() => setOpen((v) => !v)}
           aria-expanded={open}
-          aria-label="Music settings"
-          title="Mood and song code"
+          aria-label={t('music.settings')}
+          title={t('music.settingsHint')}
         >
           <PixelIcon name="settings" />
         </Button>
@@ -266,7 +278,7 @@ export function MusicPlayer({ mobile }: { mobile: boolean }) {
         type="button"
         {...sheet.handlers}
         onClick={() => settle(true)}
-        aria-label="Show music player"
+        aria-label={t('music.show')}
         tabIndex={shown ? -1 : 0}
         className={`absolute left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 px-16 py-6 text-2xs text-text-muted select-none touch-none bg-transparent border-0 ${shown ? '' : 'pointer-events-auto'}`}
         style={{
@@ -278,7 +290,7 @@ export function MusicPlayer({ mobile }: { mobile: boolean }) {
         <span className="flex rotate-180">
           <PixelIcon name="down" scale={1} />
         </span>
-        <span className="whitespace-nowrap leading-none">Swipe up for music</span>
+        <span className="whitespace-nowrap leading-none">{t('music.swipeUp')}</span>
       </button>
       <div
         ref={rootRef}

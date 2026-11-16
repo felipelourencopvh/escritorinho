@@ -11,6 +11,8 @@ import {
   parseCharacterProfiles,
 } from '../../../core/src/characterProfiles.js';
 import { GREETER_CHARACTER_ID } from '../constants.js';
+import { dataLabel } from '../i18n/dataLabels.js';
+import { t } from '../i18n/index.js';
 import { SWATCHES } from './art/artColors.js';
 import type { CharacterRenderer } from './renderer.js';
 import {
@@ -162,21 +164,21 @@ export function randomize(r: CharacterRenderer, p: CharacterProfile): void {
 export function tabSummary(w: Wardrobe, p: CharacterProfile, tab: TabKey): string {
   switch (tab) {
     case 'body':
-      return `Chest: ${partLabel(w, 'body', p.body)}`;
+      return t('wardrobe.chest', { part: dataLabel(partLabel(w, 'body', p.body)) });
     case 'eyes': {
-      const { label } = eyeShape(p);
-      return p.colors?.eyes || p.colors?.lashes ? `${label}, recoloured` : label;
+      const label = dataLabel(eyeShape(p).label);
+      return p.colors?.eyes || p.colors?.lashes ? t('wardrobe.recoloured', { label }) : label;
     }
     case 'acc': {
       const worn = ACCESSORIES.filter((a) => p[a.key]).length;
-      return worn ? `${worn} worn` : 'None';
+      return worn ? t('wardrobe.nWorn', { n: worn }) : t('wardrobe.none');
     }
     default: {
       const under = underOf(tab);
-      if (!p[tab] && under && p[under]) return 'Underwear';
-      const { inner } = TABS.find((t) => t.key === tab)!;
-      const worn = partLabel(w, tab, p[tab]);
-      return inner && p[inner] ? `${worn}, ${partLabel(w, inner, p[inner])}` : worn;
+      if (!p[tab] && under && p[under]) return t('wardrobe.underwear');
+      const { inner } = TABS.find((d) => d.key === tab)!;
+      const worn = dataLabel(partLabel(w, tab, p[tab]));
+      return inner && p[inner] ? `${worn}, ${dataLabel(partLabel(w, inner, p[inner]))}` : worn;
     }
   }
 }

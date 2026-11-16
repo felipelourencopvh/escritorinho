@@ -6,6 +6,8 @@
 import { useDeferredValue, useLayoutEffect, useRef } from 'react';
 
 import type { CharacterProfile } from '../../../../core/src/characterProfiles.js';
+import { dataLabel } from '../../i18n/dataLabels.js';
+import { useLocale, useT } from '../../i18n/index.js';
 import { offeredParts } from '../items.js';
 import { setPart, setUnderwear, tabSummary } from '../profiles.js';
 import {
@@ -59,7 +61,7 @@ function OptionGrid({ cards, face = false }: { cards: OptionCard[]; face?: boole
           type="button"
           className={card.none ? 'chv-opt chv-opt-none' : 'chv-opt'}
           aria-pressed={card.pressed}
-          title={card.title}
+          title={card.title && dataLabel(card.title)}
           onClick={card.onClick ?? (() => edit(card.wear))}
         >
           <SpriteCanvas
@@ -68,7 +70,7 @@ function OptionGrid({ cards, face = false }: { cards: OptionCard[]; face?: boole
             scale={face ? FACE_SCALE : THUMB_SCALE}
             dpr={dpr}
           />
-          <span>{card.label}</span>
+          <span>{dataLabel(card.label)}</span>
         </button>
       ))}
     </div>
@@ -78,6 +80,7 @@ function OptionGrid({ cards, face = false }: { cards: OptionCard[]; face?: boole
 /** A slot's parts: None (and Underwear for Top/Pants) first, then every offered part. */
 function SlotOptions({ slot }: { slot: SlotKey }) {
   const { renderer, profile, cast } = useStudio();
+  const t = useT();
   const under = underOf(slot);
   const worn = profile[slot];
   const cards: OptionCard[] = [];
@@ -85,7 +88,7 @@ function SlotOptions({ slot }: { slot: SlotKey }) {
     for (const on of [false, true]) {
       cards.push({
         key: on ? '_under' : '_none',
-        label: on ? 'Underwear' : 'None',
+        label: on ? t('wardrobe.underwear') : t('wardrobe.none'),
         none: !on,
         pressed: !worn && !!profile[under] === on,
         wear: (p) => setUnderwear(p, slot, on),
@@ -94,7 +97,7 @@ function SlotOptions({ slot }: { slot: SlotKey }) {
   } else if (slot !== 'body') {
     cards.push({
       key: '_none',
-      label: 'None',
+      label: t('wardrobe.none'),
       none: true,
       pressed: !worn,
       wear: (p) => setPart(p, slot, null),
@@ -113,6 +116,7 @@ function SlotOptions({ slot }: { slot: SlotKey }) {
 
 function EyeShapes() {
   const { profile } = useStudio();
+  const t = useT();
   const current = eyeShape(profile);
   const cards: OptionCard[] = EYE_SHAPES.map((shape) => ({
     key: shape.id,
@@ -125,7 +129,7 @@ function EyeShapes() {
   }));
   return (
     <div className="chv-colors">
-      <h2>Shape</h2>
+      <h2>{t('wardrobe.shape')}</h2>
       <OptionGrid cards={cards} face />
     </div>
   );
@@ -156,6 +160,7 @@ function Accessories() {
 
 function SlotPanel() {
   const { profile, tab, phone, renderer } = useStudio();
+  const tr = useT();
   const def = TABS.find((t) => t.key === tab)!;
   const under = underOf(tab);
   let options: React.ReactNode = null;
@@ -178,7 +183,9 @@ function SlotPanel() {
           panels.push(<ColorPanel key={picker.key} picker={picker} />);
       }
     } else if (under && profile[under]) {
-      panels.push(<ColorPanel key={under} picker={{ key: under, label: 'Underwear colour' }} />);
+      panels.push(
+        <ColorPanel key={under} picker={{ key: under, label: tr('wardrobe.underwearColour') }} />,
+      );
     }
     const { inner } = def;
     if (inner) {
@@ -186,19 +193,22 @@ function SlotPanel() {
       const { label } = layerOf(inner);
       panels.push(
         <div key={inner} className="chv-colors">
-          <h2>{label}</h2>
+          <h2>{dataLabel(label)}</h2>
           <SlotOptions slot={inner} />
         </div>,
       );
       if (profile[inner])
         panels.push(
-          <ColorPanel key={`${inner}-colour`} picker={{ key: inner, label: `${label} colour` }} />,
+          <ColorPanel
+            key={`${inner}-colour`}
+            picker={{ key: inner, label: tr('wardrobe.colourOf', { label: dataLabel(label) }) }}
+          />,
         );
     }
   }
   return (
     <div className="chv-slot">
-      {!phone && <h2 className="chv-slot-head">{def.label}</h2>}
+      {!phone && <h2 className="chv-slot-head">{dataLabel(def.label)}</h2>}
       {options}
       {panels.length > 0 && <div className="chv-slot-body">{panels}</div>}
     </div>
@@ -208,6 +218,7 @@ function SlotPanel() {
 /** One line of tabs (down the side on desktop), each as wide as the longest slot name. */
 function Tabs() {
   const { renderer, profile, tab, setTab, phone } = useStudio();
+  const locale = useLocale();
   const list = useRef<HTMLDivElement>(null);
   useLayoutEffect(() => {
     const el = list.current;
@@ -226,7 +237,8 @@ function Tabs() {
     };
     fit();
     void document.fonts?.ready.then(fit);
-  }, []);
+    // the names change width with the language
+  }, [locale]);
   // keep the chosen tab in view
   useLayoutEffect(() => {
     const el = list.current;
@@ -249,7 +261,7 @@ function Tabs() {
           aria-selected={tab === t.key}
           onClick={() => setTab(t.key)}
         >
-          <b>{t.label}</b>
+          <b>{dataLabel(t.label, locale)}</b>
           <span>{tabSummary(renderer.wardrobe, profile, t.key)}</span>
         </button>
       ))}
@@ -259,8 +271,9 @@ function Tabs() {
 
 export function Wardrobe() {
   const { editor } = useStudio();
+  const t = useT();
   return (
-    <section className="chv-box chv-wardrobe" aria-label="Wardrobe">
+    <section className="chv-box chv-wardrobe" aria-label={t('wardrobe.title')}>
       {editor ? (
         <PixelEditor />
       ) : (
