@@ -12,6 +12,8 @@ import {
   AREA_LABEL_SHADOW_COLOR,
   AREA_OVERLAY_ALPHA,
   BUBBLE_FADE_DURATION_SEC,
+  BUBBLE_SITTING_OFFSET_PX,
+  BUBBLE_VERTICAL_OFFSET_PX,
   BUTTON_ICON_COLOR,
   BUTTON_SHADOW_COLOR,
   CARPET_DEFAULT_ACCENT_COLOR,
@@ -53,7 +55,11 @@ import {
 } from '../sprites/carpetTiles.js';
 import { getPetSprites } from '../sprites/petSpriteData.js';
 import { getCachedSprite, getOutlineSprite } from '../sprites/spriteCache.js';
-import { BUBBLE_HEART_SPRITE, getCharacterSprites } from '../sprites/spriteData.js';
+import {
+  BUBBLE_HEART_SPRITE,
+  BUBBLE_POPCORN_SPRITE,
+  getCharacterSprites,
+} from '../sprites/spriteData.js';
 import type {
   AreaDefinition,
   CarpetTile,
@@ -761,6 +767,27 @@ function renderSelectionButtons(
 // canvas content can never out-paint the DOM overlay. Pet heart bubbles stay
 // here: pets have no overlay labels to collide with.
 
+function renderLeisureBubbles(
+  ctx: CanvasRenderingContext2D,
+  characters: Character[],
+  offsetX: number,
+  offsetY: number,
+  zoom: number,
+): void {
+  for (const ch of characters) {
+    // A chat's words show as text in ToolOverlay; only popcorn is a picture here.
+    if (ch.leisureBubble !== 'popcorn' || ch.bubbleType) continue;
+    const sprite = BUBBLE_POPCORN_SPRITE;
+    const cached = getCachedSprite(sprite, zoom);
+    const sitting = ch.state === CharacterState.TYPE ? BUBBLE_SITTING_OFFSET_PX : 0;
+    const bubbleX = Math.round(offsetX + ch.x * zoom - cached.width / 2);
+    const bubbleY = Math.round(
+      offsetY + (ch.y + sitting - BUBBLE_VERTICAL_OFFSET_PX) * zoom - cached.height - zoom,
+    );
+    ctx.drawImage(cached, bubbleX, bubbleY);
+  }
+}
+
 function renderPetBubbles(
   ctx: CanvasRenderingContext2D,
   pets: Pet[],
@@ -919,6 +946,9 @@ export function renderFrame(
   );
 
   // Character speech bubbles render in ToolOverlay (DOM, above the labels).
+  // Resting activities' bubbles (popcorn, a chat) are decoration: canvas, like
+  // the pets', and never over a permission or done bubble.
+  renderLeisureBubbles(ctx, characters, offsetX, offsetY, zoom);
   // Pet heart bubbles (canvas overlay pass)
   if (pets && pets.length > 0) {
     renderPetBubbles(ctx, pets, offsetX, offsetY, zoom);

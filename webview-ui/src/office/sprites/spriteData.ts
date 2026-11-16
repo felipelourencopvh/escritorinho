@@ -4,6 +4,7 @@ import type { Direction, SpriteData } from '../types.js';
 import { Direction as Dir } from '../types.js';
 import bubblePermissionData from './bubble-permission.json';
 import bubblePetData from './bubble-pet.json';
+import bubblePopcornData from './bubble-popcorn.json';
 import bubbleWaitingData from './bubble-waiting.json';
 
 // ── Speech Bubble Sprites ───────────────────────────────────────
@@ -25,6 +26,9 @@ export const BUBBLE_WAITING_SPRITE: SpriteData = resolveBubbleSprite(bubbleWaiti
 
 /** Heart bubble: pet petting feedback (11x13) */
 export const BUBBLE_HEART_SPRITE: SpriteData = resolveBubbleSprite(bubblePetData);
+
+/** Popcorn bubble: a resting agent making popcorn in the kitchen (11x13) */
+export const BUBBLE_POPCORN_SPRITE: SpriteData = resolveBubbleSprite(bubblePopcornData);
 
 // ════════════════════════════════════════════════════════════════
 // Loaded character sprites (from PNG assets)

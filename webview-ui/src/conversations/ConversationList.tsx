@@ -17,6 +17,7 @@ import {
 } from '../constants.js';
 import { prefersReducedMotion } from '../hooks/usePresence.js';
 import { type MessageKey, useT } from '../i18n/index.js';
+import { translateServerText } from '../i18n/serverCopy.js';
 import { recentAcross } from './recent.js';
 import { timeAgo } from './timeAgo.js';
 import { type ConversationLimits, useConversations } from './useConversations.js';
@@ -381,7 +382,9 @@ export interface RowProps {
 }
 
 export function ConversationRow({ conversation, where, onPress, statusFor, now, roomy }: RowProps) {
-  const { title, updatedAt, palette, repeat, agentId } = conversation;
+  const { updatedAt, palette, repeat, agentId } = conversation;
+  // The server titles an unnamed running one in English: show it in the office's language.
+  const title = translateServerText(conversation.title);
   const status = agentId !== undefined ? statusFor(agentId) : null;
   const t = useT();
   return (

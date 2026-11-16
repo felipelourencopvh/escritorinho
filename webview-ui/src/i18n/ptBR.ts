@@ -542,4 +542,19 @@ export const ptBR: Record<MessageKey, string> = {
   // ── Chat: a menu on the agent screen ──
   'chat.promptAsks': '{name} está perguntando:',
   'chat.seeInTerminal': 'Ver no terminal',
+
+  // ── Resting chats between agents (chat.line0 is a greeting, line1 its answer) ──
+  'chat.line0': 'Oi, {name}! Tudo certo?',
+  'chat.line1': 'Tudo ótimo! Acabei de fechar uma tarefa.',
+  'chat.line2': 'Como anda o {project}?',
+  'chat.line3': 'Muito arquivo pra ler hoje.',
+  'chat.line4': 'Bora fazer uma pipoca?',
+  'chat.line5': 'Viu o que passou na TV?',
+  'chat.line6': 'Café ou pipoca, eis a questão.',
+  'chat.line7': 'Me chama se precisar de ajuda.',
+  'chat.line8': 'Aqui os testes passaram todos!',
+  'chat.line9': 'O dia tá puxado, hein?',
+  'chat.line10': 'Eu perguntei antes de mexer. Sempre.',
+  'chat.line11': 'Daqui a pouco volto pra mesa.',
+  'conv.newTitle': 'Nova conversa',
 };

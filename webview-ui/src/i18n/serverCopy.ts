@@ -33,6 +33,7 @@ const PATTERNS: Pattern[] = [
     vars: [],
   },
   { re: /^One more thing: hooks!$/, key: 'consent.headline', vars: [] },
+  { re: /^New conversation$/, key: 'conv.newTitle', vars: [] },
   {
     re: /^To show your remaining weekly and 5-hour usage in the top-left corner, .+? wraps your status line in (\S+)\. It keeps working and looks the same \(with no status line, Claude Code hides some footer hints\)\. A one-time backup is saved as (\S+)\.$/,
     key: 'usage.factWhat',

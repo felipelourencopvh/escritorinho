@@ -18,6 +18,7 @@ import { isReadingToolName } from '../toolUtils.js';
 import type { Character, Seat, SpriteData, TileType as TileTypeVal } from '../types.js';
 import { CharacterState, Direction, TILE_SIZE } from '../types.js';
 import { startBlink } from './blink.js';
+import { arriveAtLeisure } from './leisure.js';
 
 /** Whether a tool should show the reading animation (vs typing). Taxonomy comes
  *  from the active HookProvider via the `providerCapabilities` message. */
@@ -101,11 +102,22 @@ export function updateCharacter(
   seats: Map<string, Seat>,
   tileMap: TileTypeVal[][],
   blockedTiles: Set<string>,
+  /** May start a resting activity instead of the next wander (engine/leisure.ts). */
+  startLeisure?: (ch: Character) => boolean,
 ): void {
   ch.frameTimer += dt;
 
   switch (ch.state) {
     case CharacterState.TYPE: {
+      // Work arrived while on the sofa: stand up (IDLE walks it to its desk).
+      if (ch.isActive && ch.leisure) {
+        ch.leisure = null;
+        ch.leisureBubble = null;
+        ch.state = CharacterState.IDLE;
+        ch.frame = 0;
+        ch.frameTimer = 0;
+        break;
+      }
       if (ch.frameTimer >= TYPE_FRAME_DURATION_SEC) {
         ch.frameTimer -= TYPE_FRAME_DURATION_SEC;
         ch.frame = (ch.frame + 1) % 2;
@@ -166,6 +178,11 @@ export function updateCharacter(
         }
         break;
       }
+      // Busy with an activity (making popcorn, chatting): hold still.
+      if (ch.leisure && ch.leisure.phase !== 'going') {
+        ch.dir = ch.leisure.dir;
+        break;
+      }
       // Countdown wander timer
       ch.wanderTimer -= dt;
       if (ch.wanderTimer <= 0) {
@@ -190,6 +207,12 @@ export function updateCharacter(
               break;
             }
           }
+        }
+        if (startLeisure?.(ch)) {
+          // An activity counts as an outing: they still go back to rest at the desk.
+          ch.wanderCount++;
+          ch.wanderTimer = randomRange(WANDER_PAUSE_MIN_SEC, WANDER_PAUSE_MAX_SEC);
+          break;
         }
         if (walkableTiles.length > 0) {
           const target = walkableTiles[Math.floor(Math.random() * walkableTiles.length)];
@@ -241,6 +264,14 @@ export function updateCharacter(
               ch.state = CharacterState.IDLE;
             }
           }
+        } else if (
+          ch.leisure?.phase === 'going' &&
+          ch.tileCol === ch.leisure.col &&
+          ch.tileRow === ch.leisure.row
+        ) {
+          // Arrived at an activity (the sofa, the counter, a chat partner).
+          arriveAtLeisure(ch);
+          break;
         } else {
           // Check if arrived at assigned seat — sit down for a rest before wandering again
           if (ch.seatId) {

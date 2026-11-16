@@ -40,6 +40,7 @@ import type {
 import { CharacterState, Direction, PetState, TILE_SIZE } from '../types.js';
 import { tickBlink } from './blink.js';
 import { createCharacter, restInChair, updateCharacter, updateHelper } from './characters.js';
+import { findLeisureSpots, type LeisureSpot, tickLeisure, tryStartLeisure } from './leisure.js';
 import { advanceMatrixEffect, startMatrixEffect } from './matrixEffectState.js';
 import { createPet, updatePet } from './petEntity.js';
 import { anchorTile, closestFreeSeat } from './seatPlacement.js';
@@ -153,6 +154,11 @@ export class OfficeState {
     this.areaMappings = mappings;
   }
 
+  /** Where resting agents watch TV or make popcorn (engine/leisure.ts), per layout. */
+  private leisureSpots: LeisureSpot[] = [];
+  /** Seconds since the office started, for the chat turns. */
+  private leisureClock = 0;
+
   constructor(layout?: OfficeLayout) {
     this.layout = layout || createDefaultLayout();
     this.tileMap = layoutToTileMap(this.layout);
@@ -161,6 +167,7 @@ export class OfficeState {
     this.blockedTiles = getBlockedTiles(this.layout.furniture);
     this.furniture = layoutToFurnitureInstances(this.layout.furniture);
     this.walkableTiles = getWalkableTiles(this.tileMap, this.blockedTiles);
+    this.leisureSpots = findLeisureSpots(this.layout.furniture, this.seats, this.blockedTiles);
     // Pets are built last because they need walkableTiles populated for spawn.
     this.rebuildPetsFromLayout(this.layout);
   }
@@ -175,6 +182,12 @@ export class OfficeState {
     this.blockedTiles = getBlockedTiles(layout.furniture);
     this.rebuildFurnitureInstances();
     this.walkableTiles = getWalkableTiles(this.tileMap, this.blockedTiles);
+    this.leisureSpots = findLeisureSpots(layout.furniture, this.seats, this.blockedTiles);
+    // The sofas and counters may have moved: every activity starts over.
+    for (const ch of this.characters.values()) {
+      ch.leisure = null;
+      ch.leisureBubble = null;
+    }
 
     // Shift character positions when grid expands left/up
     if (shift && (shift.col !== 0 || shift.row !== 0)) {
@@ -1235,7 +1248,22 @@ export class OfficeState {
       } else {
         // Temporarily unblock own seat so character can pathfind to it
         this.withOwnSeatUnblocked(ch, () =>
-          updateCharacter(ch, dt, this.walkableTiles, this.seats, this.tileMap, this.blockedTiles),
+          updateCharacter(
+            ch,
+            dt,
+            this.walkableTiles,
+            this.seats,
+            this.tileMap,
+            this.blockedTiles,
+            (resting) =>
+              tryStartLeisure(resting, {
+                spots: this.leisureSpots,
+                characters: this.characters,
+                seats: this.seats,
+                tileMap: this.tileMap,
+                blockedTiles: this.blockedTiles,
+              }),
+          ),
         );
       }
 
@@ -1252,6 +1280,10 @@ export class OfficeState {
     for (const id of toDelete) {
       this.characters.delete(id);
     }
+
+    // Resting activities: timers, bubbles, chat partners, dropping them for work.
+    this.leisureClock += dt;
+    tickLeisure(dt, { characters: this.characters }, this.leisureClock);
 
     // A PC turns on when its agent sits down to work, not when the turn starts.
     const lit = this.litWorkstations();

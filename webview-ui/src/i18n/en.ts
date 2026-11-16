@@ -540,6 +540,21 @@ export const en = {
   // ── Chat: a menu on the agent screen ──
   'chat.promptAsks': '{name} is asking:',
   'chat.seeInTerminal': 'See it in the terminal',
+
+  // ── Resting chats between agents (chat.line0 is a greeting, line1 its answer) ──
+  'chat.line0': 'Hi {name}! How is it going?',
+  'chat.line1': 'All good! Just wrapped up a task.',
+  'chat.line2': 'How is {project} going?',
+  'chat.line3': 'Lots of files to read today.',
+  'chat.line4': 'Popcorn break?',
+  'chat.line5': 'Did you see what was on TV?',
+  'chat.line6': 'Coffee or popcorn, that is the question.',
+  'chat.line7': 'Ping me if you need a hand.',
+  'chat.line8': 'Tests are all green over here!',
+  'chat.line9': 'Busy day, huh?',
+  'chat.line10': 'I asked before touching anything. Always.',
+  'chat.line11': 'Back to my desk soon.',
+  'conv.newTitle': 'New conversation',
 } as const;
 
 export type MessageKey = keyof typeof en;

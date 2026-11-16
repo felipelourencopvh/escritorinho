@@ -39,6 +39,10 @@ const PT_BR: Readonly<Record<string, string>> = {
   Whiteboard: 'Quadro branco',
   'Wooden Bench': 'Banco de madeira',
   'Wooden Chair': 'Cadeira de madeira',
+  TV: 'TV',
+  'Kitchen Counter': 'Bancada de cozinha',
+  Fridge: 'Geladeira',
+  Microwave: 'Micro-ondas',
   // Wardrobe parts
   'Badge cap': 'Boné com emblema',
   Blazer: 'Blazer',

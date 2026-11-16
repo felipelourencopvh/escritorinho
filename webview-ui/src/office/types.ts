@@ -112,6 +112,23 @@ export interface FurnitureCatalogEntry {
   mirrorSide?: boolean;
 }
 
+/** What a resting character is doing instead of wandering (engine/leisure.ts). */
+export interface CharacterLeisure {
+  kind: 'tv' | 'kitchen' | 'chat';
+  /** going: walking there; at: doing it; waiting: a chat partner holding still. */
+  phase: 'going' | 'at' | 'waiting';
+  col: number;
+  row: number;
+  dir: Direction;
+  /** Seconds left (of the show, the popcorn, the chat, or the wait). */
+  timer: number;
+  partnerId?: number;
+  /** When a chat began (the office's leisure clock), for whose turn it is. */
+  startedAt?: number;
+  /** Who walked over to start the chat: it speaks first. */
+  startedBy?: number;
+}
+
 export interface PlacedFurniture {
   uid: string;
   type: string; // asset ID from furniture manifest
@@ -236,6 +253,12 @@ export interface Character extends Blinker {
   matrixEffectSeeds: number[];
   /** Directory name — the agent's origin label (only set for multi-root workspaces) */
   directoryName?: string;
+  /** A resting activity (TV, popcorn, a chat), or none. */
+  leisure?: CharacterLeisure | null;
+  /** The bubble that activity shows over the head right now. */
+  leisureBubble?: 'popcorn' | 'talk' | null;
+  /** In a chat, which line it is saying (an index into the chat lines), while it talks. */
+  leisureLine?: number | null;
   /** Headless agent: adopted from outside the office, so there is no terminal to
    *  focus. Rendered translucent. Teammates and sub-agents are never headless —
    *  clicking them reaches their lead's / parent's terminal. */

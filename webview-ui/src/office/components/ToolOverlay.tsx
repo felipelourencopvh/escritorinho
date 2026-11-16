@@ -10,6 +10,7 @@ import {
   CONTEXT_GAUGE_GAP_PX,
   CONTEXT_GAUGE_HEIGHT_PX,
   CONTEXT_GAUGE_WIDTH_PX,
+  LEISURE_TALK_BUBBLE_HEIGHT_PX,
   OVERLAY_BUBBLE_Z_INDEX,
   OVERLAY_LABEL_SELECTED_Z_INDEX,
   OVERLAY_LABEL_Z_INDEX,
@@ -19,7 +20,7 @@ import {
   TOOL_OVERLAY_VERTICAL_OFFSET,
 } from '../../constants.js';
 import type { SubagentCharacter } from '../../hooks/useExtensionMessages.js';
-import { translateStatus, useLocale, useT } from '../../i18n/index.js';
+import { type MessageKey, translateStatus, useLocale, useT } from '../../i18n/index.js';
 import { agentNameFor } from '../agentNames.js';
 import { ContextBar } from '../ContextBar.js';
 import { contextLeft } from '../contextGauge.js';
@@ -195,6 +196,40 @@ export function ToolOverlay({
               }}
             >
               <OverlayBubble cached={cachedBubble} dpr={dpr} />
+            </div>
+          );
+        }
+
+        // A resting chat: what it says, in a speech bubble with words (the
+        // office's other bubbles are pictures). Never over a permission or done bubble.
+        if (!bubbleNode && ch.leisureBubble === 'talk' && ch.leisureLine != null) {
+          const partner =
+            ch.leisure?.partnerId !== undefined
+              ? officeState.characters.get(ch.leisure.partnerId)
+              : undefined;
+          const partnerName =
+            agentNameFor(partner?.directoryName) ?? partner?.directoryName ?? t('chat.agent');
+          const line = t(`chat.line${ch.leisureLine}` as MessageKey, {
+            name: partnerName,
+            project: partner?.directoryName ?? partnerName,
+          });
+          const talkSitting = ch.state === CharacterState.TYPE ? BUBBLE_SITTING_OFFSET_PX : 0;
+          const talkBottom =
+            project.toScreenY(ch.y + talkSitting - BUBBLE_VERTICAL_OFFSET_PX) - zoom / dpr;
+          bubbleTop = talkBottom - LEISURE_TALK_BUBBLE_HEIGHT_PX;
+          bubbleNode = (
+            <div
+              className="absolute -translate-x-1/2 -translate-y-full pointer-events-none"
+              style={{
+                left: project.toScreenX(ch.x),
+                top: talkBottom,
+                zIndex: OVERLAY_BUBBLE_Z_INDEX,
+              }}
+              data-testid="agent-talk-bubble"
+            >
+              <div className="pixel-panel bg-white text-bg-dark border-2 border-border px-6 py-2 text-xs leading-snug max-w-[180px] w-max">
+                {line}
+              </div>
             </div>
           );
         }
