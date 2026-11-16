@@ -30,15 +30,15 @@ export function copyBundledScript(extensionPath: string, name: string): boolean 
       fs.mkdirSync(dstDir, { recursive: true, mode: 0o700 });
     }
     if (!fs.existsSync(src)) {
-      console.warn(`[Pixel Agents] Script not found at ${src}`);
+      console.warn(`[Escritorinho] Script not found at ${src}`);
       return false;
     }
     fs.copyFileSync(src, dst);
     fs.chmodSync(dst, 0o700);
-    console.log(`[Pixel Agents] Script installed at ${dst}`);
+    console.log(`[Escritorinho] Script installed at ${dst}`);
     return true;
   } catch (e) {
-    console.error(`[Pixel Agents] Failed to copy ${name}: ${e}`);
+    console.error(`[Escritorinho] Failed to copy ${name}: ${e}`);
     return false;
   }
 }

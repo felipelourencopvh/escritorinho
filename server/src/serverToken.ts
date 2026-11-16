@@ -61,7 +61,7 @@ export function loadOrCreateStandaloneToken({ rotate = false } = {}): string {
       );
     }
     console.warn(
-      `[Pixel Agents] Could not persist the server token (${err instanceof Error ? err.message : String(err)}); using a per-process token.`,
+      `[Escritorinho] Could not persist the server token (${err instanceof Error ? err.message : String(err)}); using a per-process token.`,
     );
   }
   return token;

@@ -525,7 +525,7 @@ async function applyHooksPreference(
     // not outcome (the installer refuses to touch an unparseable file).
     send({ type: 'hooksStatus', providerId: provider.id, installed });
   } catch (err) {
-    console.error('[Pixel Agents] Applying the hooks preference failed:', err);
+    console.error('[Escritorinho] Applying the hooks preference failed:', err);
   }
 }
 
@@ -548,7 +548,7 @@ function standaloneConsentEffects(
       try {
         await ctx.onSetHooksEnabled?.(provider.id, false);
       } catch (err) {
-        console.error('[Pixel Agents] Hook uninstall failed:', err);
+        console.error('[Escritorinho] Hook uninstall failed:', err);
       }
     },
     areHooksInstalled: () => provider.areHooksInstalled(),
@@ -666,7 +666,7 @@ function handleWebviewReady(send: WsSend, ctx: ClientMessageContext): void {
     void provider
       .areHooksInstalled()
       .catch((err: unknown) => {
-        console.error(`[Pixel Agents] hooks status check failed for provider ${provider.id}:`, err);
+        console.error(`[Escritorinho] hooks status check failed for provider ${provider.id}:`, err);
         return false;
       })
       .then((installed) => {
@@ -820,7 +820,7 @@ function refuseReadOnly(
   if (!reportedRefusals.has(type)) {
     reportedRefusals.add(type);
     console.warn(
-      `[Pixel Agents] Ignoring ${type} from a read-only client. Changes need the tokened URL the CLI printed (at localhost or an --allowed-host name).`,
+      `[Escritorinho] Ignoring ${type} from a read-only client. Changes need the tokened URL the CLI printed (at localhost or an --allowed-host name).`,
     );
   }
   switch (msg.type) {

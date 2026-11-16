@@ -55,7 +55,7 @@ function saveCharacterProfiles(
     writeJsonAtomic(filePath, profiles);
     characterProfilesFile.set(profiles, filePath);
   } catch (err) {
-    console.error('[Pixel Agents] Failed to write character profiles:', err);
+    console.error('[Escritorinho] Failed to write character profiles:', err);
     return null;
   }
   return { profiles, items, remap };
@@ -152,7 +152,7 @@ export function watchCharacterProfiles(
   const profilesWatcher = watchJsonFile(filePath, 'character profiles', (value) => {
     const profiles = parseCharacterProfiles(value);
     if (!profiles) {
-      console.warn('[Pixel Agents] Ignoring malformed characters.json change');
+      console.warn('[Escritorinho] Ignoring malformed characters.json change');
       return;
     }
     const before = getCharacterProfiles();
@@ -168,7 +168,7 @@ export function watchCharacterProfiles(
   const itemsWatcher = watchJsonFile(itemsPath, 'wardrobe items', (value) => {
     const items = parseWardrobeItems(value);
     if (!items) {
-      console.warn('[Pixel Agents] Ignoring malformed wardrobe-items.json change');
+      console.warn('[Escritorinho] Ignoring malformed wardrobe-items.json change');
       return;
     }
     wardrobeItemsFile.set(items, itemsPath);

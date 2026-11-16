@@ -119,7 +119,7 @@ export class FileStateAdapter implements StateAdapter {
         cardOrder: parseCardOrder(parsed.cardOrder) ?? [],
       };
     } catch (err) {
-      console.error('[Pixel Agents] Failed to read adapter state:', err);
+      console.error('[Escritorinho] Failed to read adapter state:', err);
       return { ...EMPTY_STATE };
     }
   }
@@ -140,7 +140,7 @@ export class FileStateAdapter implements StateAdapter {
       fs.writeFileSync(tmpPath, json, 'utf-8');
       fs.renameSync(tmpPath, this.stateFilePath);
     } catch (err) {
-      console.error('[Pixel Agents] Failed to write adapter state:', err);
+      console.error('[Escritorinho] Failed to write adapter state:', err);
     }
   }
 }

@@ -82,7 +82,7 @@ export function endBackgroundSpawn(
   agents: AgentStateStore,
   toolId: string,
 ): void {
-  console.log(`[Pixel Agents] Agent ${agentId} background agent done: ${toolId}`);
+  console.log(`[Escritorinho] Agent ${agentId} background agent done: ${toolId}`);
   agent.backgroundSpawns.delete(toolId);
   agent.activeSubagentToolIds.delete(toolId);
   agent.activeSubagentToolNames.delete(toolId);
@@ -144,7 +144,7 @@ export function processTranscriptLine(
       agent.leadAgentId = undefined;
       if (debug) {
         console.log(
-          `[Pixel Agents] Agent ${agentId} team metadata: team=${agent.teamName}, role=${agent.agentName ?? 'lead'}`,
+          `[Escritorinho] Agent ${agentId} team metadata: team=${agent.teamName}, role=${agent.agentName ?? 'lead'}`,
         );
       }
       // Link teammates to leads within the same team
@@ -188,7 +188,7 @@ export function processTranscriptLine(
             const toolName = block.name || '';
             const status = formatToolStatus(toolName, block.input || {});
             console.log(
-              `[Pixel Agents] JSONL: Agent ${agentId} - tool start: ${block.id} ${status}`,
+              `[Escritorinho] JSONL: Agent ${agentId} - tool start: ${block.id} ${status}`,
             );
             agent.activeToolIds.add(block.id);
             agent.activeToolStatuses.set(block.id, status);
@@ -284,7 +284,7 @@ export function processTranscriptLine(
     } else if (record.type === 'assistant' && assistantContent === undefined) {
       // Assistant record with no recognizable content structure
       console.warn(
-        `[Pixel Agents] Agent ${agentId}: assistant record has no content. Keys: ${Object.keys(record).join(', ')}`,
+        `[Escritorinho] Agent ${agentId}: assistant record has no content. Keys: ${Object.keys(record).join(', ')}`,
       );
     } else if (record.type === 'progress') {
       processProgressRecord(agentId, record, agents, waitingTimers, permissionTimers);
@@ -336,7 +336,7 @@ export function processTranscriptLine(
                 agent.isTeamLead = true;
                 if (debug) {
                   console.log(
-                    `[Pixel Agents] Agent ${agentId} spawned teammate "${teammateSpawn.teammateName}" -> lead of team ${teammateSpawn.teamName}`,
+                    `[Escritorinho] Agent ${agentId} spawned teammate "${teammateSpawn.teammateName}" -> lead of team ${teammateSpawn.teamName}`,
                   );
                 }
                 linkTeammates(agentId, agent, agents);
@@ -364,7 +364,7 @@ export function processTranscriptLine(
                   : null;
               if (launch && launchSpawn(agent.backgroundSpawns, completedToolId, launch.taskId)) {
                 console.log(
-                  `[Pixel Agents] Agent ${agentId} background agent launched: ${completedToolId}${launch.taskId ? ` (${launch.taskId})` : ''}`,
+                  `[Escritorinho] Agent ${agentId} background agent launched: ${completedToolId}${launch.taskId ? ` (${launch.taskId})` : ''}`,
                 );
                 // Current harnesses OMIT run_in_background from the tool_use
                 // input, so the spawn's original agentToolStart went out
@@ -391,7 +391,7 @@ export function processTranscriptLine(
               }
 
               console.log(
-                `[Pixel Agents] JSONL: Agent ${agentId} - tool done: ${block.tool_use_id}`,
+                `[Escritorinho] JSONL: Agent ${agentId} - tool done: ${block.tool_use_id}`,
               );
               // If the completed tool spawned a subagent, clear its subagent tools
               if (isSubagentTool(completedToolName)) {
@@ -536,7 +536,7 @@ export function processTranscriptLine(
         agent.seenUnknownRecordTypes.add(record.type);
         if (debug) {
           console.log(
-            `[Pixel Agents] JSONL: Agent ${agentId} - unrecognized record type '${record.type}'. ` +
+            `[Escritorinho] JSONL: Agent ${agentId} - unrecognized record type '${record.type}'. ` +
               `Keys: ${Object.keys(record).join(', ')}`,
           );
         }
@@ -593,7 +593,7 @@ function processProgressRecord(
         const toolName = block.name || '';
         const status = formatToolStatus(toolName, block.input || {});
         console.log(
-          `[Pixel Agents] Agent ${agentId} subagent tool start: ${block.id} ${status} (parent: ${parentToolId})`,
+          `[Escritorinho] Agent ${agentId} subagent tool start: ${block.id} ${status} (parent: ${parentToolId})`,
         );
 
         // Track sub-tool IDs
@@ -632,7 +632,7 @@ function processProgressRecord(
     for (const block of content) {
       if (block.type === 'tool_result' && block.tool_use_id) {
         console.log(
-          `[Pixel Agents] Agent ${agentId} subagent tool done: ${block.tool_use_id} (parent: ${parentToolId})`,
+          `[Escritorinho] Agent ${agentId} subagent tool done: ${block.tool_use_id} (parent: ${parentToolId})`,
         );
 
         // Remove from tracking

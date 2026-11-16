@@ -40,12 +40,12 @@ import {
 
 /** Shown before the user confirms the install (Settings → Usage Bars). */
 export const USAGE_BRIDGE_DISCLOSURE = [
-  'To show your remaining weekly and 5-hour usage in the top-left corner, Pixel Agents ' +
+  'To show your remaining weekly and 5-hour usage in the top-left corner, Escritorinho ' +
     'wraps your status line in ~/.claude/settings.json. It keeps working and looks the same ' +
     '(with no status line, Claude Code hides some footer hints). A one-time backup is saved as ' +
     `settings.json${SETTINGS_BACKUP_SUFFIX}.`,
   "Only your usage percentages and reset times, and each session's context percentage, are sent, " +
-    'to the Pixel Agents server on this machine.',
+    'to the Escritorinho server on this machine.',
   'You can turn this off at any time from Settings → Usage Bars.',
 ].join('\n\n');
 

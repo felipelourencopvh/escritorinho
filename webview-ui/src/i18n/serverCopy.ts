@@ -23,7 +23,7 @@ const PATTERNS: Pattern[] = [
     vars: ['count', 'file', 'backup'],
   },
   {
-    re: /^Claude Code will send those events - including tool names and tool inputs - to a .+? server on this machine\. Everything stays local - the server listens only on 127\.0\.0\.1 - unless you explicitly start it with --host to expose it on your network\.$/,
+    re: /^Claude Code will send those events - including tool names and tool inputs - to an? .+? server on this machine\. Everything stays local - the server listens only on 127\.0\.0\.1 - unless you explicitly start it with --host to expose it on your network\.$/,
     key: 'consent.factData',
     vars: [],
   },

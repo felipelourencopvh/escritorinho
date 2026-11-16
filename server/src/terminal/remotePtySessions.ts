@@ -227,7 +227,7 @@ export class RemotePtySessions implements TerminalSessions {
           session.pid = reply.pid;
         } else {
           console.error(
-            `[Pixel Agents] PTY host: agent ${options.agentId} spawn failed: ${reply.message}`,
+            `[Escritorinho] PTY host: agent ${options.agentId} spawn failed: ${reply.message}`,
           );
           this.sessions.delete(options.agentId);
           session.receiveExit({ exitCode: -1 });
@@ -335,7 +335,7 @@ export class RemotePtySessions implements TerminalSessions {
     if (!this.connected) return;
     this.connected = false;
     if (this.closing) return;
-    console.error('[Pixel Agents] PTY host connection lost: its terminals are gone.');
+    console.error('[Escritorinho] PTY host connection lost: its terminals are gone.');
     const sessions = [...this.sessions.values(), ...this.ending.values()];
     this.sessions.clear();
     this.ending.clear();
@@ -377,5 +377,5 @@ export function startPtyHostProcess(script: string, socketPath: string, logFile:
   });
   child.unref();
   fs.closeSync(log);
-  console.log(`[Pixel Agents] Started a PTY host (pid ${child.pid}), log: ${logFile}`);
+  console.log(`[Escritorinho] Started a PTY host (pid ${child.pid}), log: ${logFile}`);
 }

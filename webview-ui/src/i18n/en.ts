@@ -121,7 +121,7 @@ export const en = {
   'consent.factWhat':
     'To bring your agents to life in real time, {app} adds hooks for {count} Claude Code events to {file}. Note that your existing settings are kept, and a one-time backup is saved as {backup}.',
   'consent.factData':
-    'Claude Code will send those events - including tool names and tool inputs - to a {app} server on this machine. Everything stays local - the server listens only on 127.0.0.1 - unless you explicitly start it with --host to expose it on your network.',
+    'Claude Code will send those events - including tool names and tool inputs - to an {app} server on this machine. Everything stays local - the server listens only on 127.0.0.1 - unless you explicitly start it with --host to expose it on your network.',
   'consent.factUndo':
     'You can remove the hooks at any time from Settings → Instant Detection (Hooks).',
   'usage.factWhat':

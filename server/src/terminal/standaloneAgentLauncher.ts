@@ -67,7 +67,7 @@ export function launchStandaloneAgent(
   const { store, runtime, ptyManager, provider } = deps;
 
   if (!ptyManager.isAvailable()) {
-    console.error(`[Pixel Agents] Terminal: cannot launch -- ${ptyManager.unavailableReason()}`);
+    console.error(`[Escritorinho] Terminal: cannot launch -- ${ptyManager.unavailableReason()}`);
     return null;
   }
 
@@ -79,13 +79,13 @@ export function launchStandaloneAgent(
     resume: options.resume !== undefined,
   });
   if (!launch) {
-    console.error('[Pixel Agents] Terminal: provider.buildLaunchCommand is not implemented');
+    console.error('[Escritorinho] Terminal: provider.buildLaunchCommand is not implemented');
     return null;
   }
 
   const dirs = provider.getSessionDirs?.(cwd) ?? [];
   if (dirs.length === 0) {
-    console.error('[Pixel Agents] Terminal: provider returned no session dirs');
+    console.error('[Escritorinho] Terminal: provider returned no session dirs');
     return null;
   }
   // A resumed session's transcript is wherever the CLI filed it (under the
@@ -145,7 +145,7 @@ export function launchStandaloneAgent(
   } catch (err) {
     // Roll the id back so a failed spawn doesn't burn an agent id.
     store.nextAgentId.current--;
-    console.error(`[Pixel Agents] Terminal: spawn failed: ${String(err)}`);
+    console.error(`[Escritorinho] Terminal: spawn failed: ${String(err)}`);
     return null;
   }
 
@@ -158,7 +158,7 @@ export function launchStandaloneAgent(
 
   const pid = session.pid !== null ? ` (pid ${session.pid})` : '';
   const what = options.resume ? `resumed session ${sessionId}` : `spawned ${launch.command}`;
-  console.log(`[Pixel Agents] Terminal: Agent ${id} - ${what}${pid} in ${cwd}`);
+  console.log(`[Escritorinho] Terminal: Agent ${id} - ${what}${pid} in ${cwd}`);
   return id;
 }
 
@@ -186,7 +186,7 @@ export function reattachTerminalAgents(deps: LaunchStandaloneAgentDeps): number[
     const record = saved.get(id);
     if (!record) {
       console.warn(
-        `[Pixel Agents] Terminal: Agent ${id} - running in the PTY host with no saved record; left out of the office.`,
+        `[Escritorinho] Terminal: Agent ${id} - running in the PTY host with no saved record; left out of the office.`,
       );
       continue;
     }
@@ -206,7 +206,7 @@ export function reattachTerminalAgents(deps: LaunchStandaloneAgentDeps): number[
     assignPaletteIfNeeded(agent, store);
     admitTerminalAgent(deps, agent, session);
     restored.push(id);
-    console.log(`[Pixel Agents] Terminal: Agent ${id} - reattached (pid ${session.pid})`);
+    console.log(`[Escritorinho] Terminal: Agent ${id} - reattached (pid ${session.pid})`);
   }
 
   if (restored.length > 0) store.persist();
@@ -234,7 +234,7 @@ function relocatedRecord(provider: HookProvider, record: PersistedAgent): Persis
     for (const dir of dirs) {
       const file = path.join(root, dir, name);
       if (!fs.existsSync(file)) continue;
-      console.log(`[Pixel Agents] Terminal: Agent ${record.id} - transcript found at ${file}`);
+      console.log(`[Escritorinho] Terminal: Agent ${record.id} - transcript found at ${file}`);
       return { ...record, jsonlFile: file, projectDir: path.dirname(file) };
     }
   }
@@ -266,7 +266,7 @@ function admitTerminalAgent(
   // The terminal closing is this surface's equivalent of VS Code's
   // "terminal closed -> clean up orphan" pass in fileWatcher.
   session.onExit((exit) => {
-    console.log(`[Pixel Agents] Terminal: Agent ${id} - exited (code ${exit.exitCode})`);
+    console.log(`[Escritorinho] Terminal: Agent ${id} - exited (code ${exit.exitCode})`);
     store.broadcast({ type: 'terminalSessionClosed', agentId: id, exitCode: exit.exitCode });
     if (store.has(id)) {
       runtime.unregisterAgent(agent.sessionId);
@@ -296,7 +296,7 @@ function startJsonlPoll(deps: LaunchStandaloneAgentDeps, id: number, agent: Agen
       if (!fs.existsSync(agent.jsonlFile)) {
         if (pollCount === 10) {
           console.warn(
-            `[Pixel Agents] Terminal: Agent ${id} - JSONL not found after 10s. Expected: ${agent.jsonlFile}`,
+            `[Escritorinho] Terminal: Agent ${id} - JSONL not found after 10s. Expected: ${agent.jsonlFile}`,
           );
         }
         return;
@@ -306,7 +306,7 @@ function startJsonlPoll(deps: LaunchStandaloneAgentDeps, id: number, agent: Agen
       // The agent may have been closed while we waited.
       if (!store.has(id)) return;
       console.log(
-        `[Pixel Agents] Terminal: Agent ${id} - found JSONL ${path.basename(agent.jsonlFile)}`,
+        `[Escritorinho] Terminal: Agent ${id} - found JSONL ${path.basename(agent.jsonlFile)}`,
       );
       startFileWatching(
         id,

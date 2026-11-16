@@ -44,7 +44,7 @@ export const STATUSLINE_WINDOWS_CUSTOM_MESSAGE =
 
 /** Surfaced when our command was edited by hand after it was written. */
 export const STATUSLINE_EDITED_MESSAGE =
-  "The Pixel Agents status line in ~/.claude/settings.json was edited by hand, so the original can't be restored — fix or remove it";
+  "The Escritorinho status line in ~/.claude/settings.json was edited by hand, so the original can't be restored — fix or remove it";
 
 /** Whether the user-scope status line runs our bridge. An unreadable or
  *  unparseable file reads as not installed (install then refuses to touch it). */
@@ -101,7 +101,7 @@ export async function installStatusLineBridge(packageRoot: string): Promise<void
       cause: e,
     });
   }
-  if (wrote) console.log('[Pixel Agents] Status line bridge installed in ~/.claude/settings.json');
+  if (wrote) console.log('[Escritorinho] Status line bridge installed in ~/.claude/settings.json');
 }
 
 /**
@@ -129,7 +129,7 @@ export async function uninstallStatusLineBridge(): Promise<void> {
       cause: e,
     });
   }
-  if (wrote) console.log('[Pixel Agents] Status line restored in ~/.claude/settings.json');
+  if (wrote) console.log('[Escritorinho] Status line restored in ~/.claude/settings.json');
 }
 
 /** Refresh the installed bridge script (a new version ships a new script).

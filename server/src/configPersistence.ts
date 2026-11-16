@@ -267,7 +267,7 @@ export function readConfig(): PixelAgentsConfig {
         : [],
     };
   } catch (err) {
-    console.error('[Pixel Agents] Failed to read config file:', err);
+    console.error('[Escritorinho] Failed to read config file:', err);
     return emptyConfig();
   }
 }
@@ -390,7 +390,7 @@ export function writeConfig(config: PixelAgentsConfig): boolean {
     fs.renameSync(tmpPath, filePath);
     return true;
   } catch (err) {
-    console.error('[Pixel Agents] Failed to write config file:', err);
+    console.error('[Escritorinho] Failed to write config file:', err);
     return false;
   }
 }

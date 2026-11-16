@@ -89,7 +89,7 @@ export function remapConversationLooks(remap: (palette: number) => number | unde
   try {
     writeJsonAtomic(looksPath(), looks);
   } catch (err) {
-    console.error('[Pixel Agents] Failed to save conversation looks:', err);
+    console.error('[Escritorinho] Failed to save conversation looks:', err);
   }
 }
 
@@ -152,7 +152,7 @@ export function recordConversationLooks(
   try {
     writeJsonAtomic(looksPath(), Object.fromEntries(kept));
   } catch (err) {
-    console.error('[Pixel Agents] Failed to save conversation looks:', err);
+    console.error('[Escritorinho] Failed to save conversation looks:', err);
   }
 }
 

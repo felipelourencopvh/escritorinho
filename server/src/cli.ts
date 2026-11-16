@@ -175,7 +175,7 @@ Options:
  */
 function copyHookScriptOrReport(packageRoot: string, context = ''): boolean {
   if (copyHookScript(packageRoot)) return true;
-  console.error(`[Pixel Agents] Hooks NOT installed${context}: hook script missing.`);
+  console.error(`[Escritorinho] Hooks NOT installed${context}: hook script missing.`);
   return false;
 }
 
@@ -200,29 +200,29 @@ function reportTerminalStatus(
 ): void {
   if (!enabledByFlag) {
     console.log(
-      '[Pixel Agents] Terminal disabled (--no-terminal): agents can be watched but not launched from the browser.',
+      '[Escritorinho] Terminal disabled (--no-terminal): agents can be watched but not launched from the browser.',
     );
     return;
   }
 
   if (!ptyManager.isAvailable()) {
     console.warn(
-      `[Pixel Agents] Terminal disabled: ${ptyManager.unavailableReason()}\n` +
-        `[Pixel Agents] The office still works; you just can't launch agents from the browser.\n` +
-        `[Pixel Agents] To enable it, reinstall so the optional PTY module is present.`,
+      `[Escritorinho] Terminal disabled: ${ptyManager.unavailableReason()}\n` +
+        `[Escritorinho] The office still works; you just can't launch agents from the browser.\n` +
+        `[Escritorinho] To enable it, reinstall so the optional PTY module is present.`,
     );
     return;
   }
 
-  console.log(`[Pixel Agents] Terminal enabled (via ${ptyManager.moduleId()})`);
+  console.log(`[Escritorinho] Terminal enabled (via ${ptyManager.moduleId()})`);
 
   if (!isLoopbackHost(host)) {
     console.warn(
-      `[Pixel Agents] WARNING: bound to ${host}, not loopback. The terminal is a shell:\n` +
-        `[Pixel Agents] anyone who can reach this port AND has the auth token can run commands\n` +
-        `[Pixel Agents] as you, and plain HTTP sends that token unencrypted. Behind a reverse\n` +
-        `[Pixel Agents] proxy (e.g. Tailscale Serve), keep --host 127.0.0.1 and pass the proxy's\n` +
-        `[Pixel Agents] name with --allowed-host instead.`,
+      `[Escritorinho] WARNING: bound to ${host}, not loopback. The terminal is a shell:\n` +
+        `[Escritorinho] anyone who can reach this port AND has the auth token can run commands\n` +
+        `[Escritorinho] as you, and plain HTTP sends that token unencrypted. Behind a reverse\n` +
+        `[Escritorinho] proxy (e.g. Tailscale Serve), keep --host 127.0.0.1 and pass the proxy's\n` +
+        `[Escritorinho] name with --allowed-host instead.`,
     );
   }
 }
@@ -240,7 +240,7 @@ async function connectPtyHost(distRoot: string, socketPath: string): Promise<Rem
   });
   const running = sessions.survivors().length;
   console.log(
-    `[Pixel Agents] PTY host (pid ${sessions.hostPid}) on ${socketPath}: ${running} running terminal(s). ` +
+    `[Escritorinho] PTY host (pid ${sessions.hostPid}) on ${socketPath}: ${running} running terminal(s). ` +
       `Restarting this server leaves them running; stopping the host ends them.`,
   );
   return sessions;
@@ -272,7 +272,7 @@ async function main(): Promise<void> {
   try {
     args = parseArgs(process.argv.slice(2));
   } catch (err) {
-    console.error(`[Pixel Agents] ${err instanceof Error ? err.message : String(err)}`);
+    console.error(`[Escritorinho] ${err instanceof Error ? err.message : String(err)}`);
     process.exit(1);
   }
 
@@ -285,7 +285,7 @@ async function main(): Promise<void> {
   // External asset directories are merged at startup too, so directories added
   // in a previous session survive a restart. buildAssetCache is the shared
   // loader used by both the standalone server and the VS Code adapter.
-  console.log('[Pixel Agents] Loading assets...');
+  console.log('[Escritorinho] Loading assets...');
   const assetCache: AssetCache = await buildAssetCache(
     distRoot,
     readConfig().externalAssetDirectories,
@@ -295,7 +295,7 @@ async function main(): Promise<void> {
   const petCount = assetCache.pets?.pets.length ?? 0;
   const furnitureCount = assetCache.furniture?.catalog.length ?? 0;
   console.log(
-    `[Pixel Agents] Assets loaded: ${profileCount} character profiles, ${charCount} external characters, ${petCount} pets, ${furnitureCount} furniture items`,
+    `[Escritorinho] Assets loaded: ${profileCount} character profiles, ${charCount} external characters, ${petCount} pets, ${furnitureCount} furniture items`,
   );
 
   // ── Store + adapter (shared settings + standalone-scoped agents/seats) ──
@@ -314,7 +314,7 @@ async function main(): Promise<void> {
 
   // Terminals for agents this server launches.
   const ptyManager = await openTerminalSessions(args, distRoot).catch((err: unknown) => {
-    console.error(`[Pixel Agents] --pty-host: ${err instanceof Error ? err.message : String(err)}`);
+    console.error(`[Escritorinho] --pty-host: ${err instanceof Error ? err.message : String(err)}`);
     process.exit(1);
   });
 
@@ -331,7 +331,7 @@ async function main(): Promise<void> {
       provider: claudeProvider,
     });
     if (reattached.length > 0) {
-      console.log(`[Pixel Agents] Reattached ${reattached.length} running agent(s)`);
+      console.log(`[Escritorinho] Reattached ${reattached.length} running agent(s)`);
     }
 
     // Wire hook events: HTTP POST -> runtime -> hookEventHandler -> agents
@@ -365,16 +365,16 @@ async function main(): Promise<void> {
             currentConfig.token,
           );
         } catch (err) {
-          console.error(`[Pixel Agents] ${err instanceof Error ? err.message : String(err)}`);
+          console.error(`[Escritorinho] ${err instanceof Error ? err.message : String(err)}`);
           return;
         }
-        console.log('[Pixel Agents] Hooks installed (user toggle)');
+        console.log('[Escritorinho] Hooks installed (user toggle)');
       } else {
         try {
           await provider.uninstallHooks();
-          console.log('[Pixel Agents] Hooks uninstalled (user toggle)');
+          console.log('[Escritorinho] Hooks uninstalled (user toggle)');
         } catch (err) {
-          console.error(`[Pixel Agents] ${err instanceof Error ? err.message : String(err)}`);
+          console.error(`[Escritorinho] ${err instanceof Error ? err.message : String(err)}`);
         }
       }
     };
@@ -411,7 +411,7 @@ async function main(): Promise<void> {
           sprites: Object.fromEntries(furniture.sprites),
         });
       }
-      console.log('[Pixel Agents] Assets reloaded (external directory change)');
+      console.log('[Escritorinho] Assets reloaded (external directory change)');
     };
 
     const config = await server.start({
@@ -432,7 +432,7 @@ async function main(): Promise<void> {
     currentConfig = { port: config.port, token: config.token };
     if (args.rotateToken) {
       console.log(
-        '[Pixel Agents] Server token rotated: URLs carrying the old token no longer grant access. Open the new URL below on each device.',
+        '[Escritorinho] Server token rotated: URLs carrying the old token no longer grant access. Open the new URL below on each device.',
       );
     }
 
@@ -466,21 +466,21 @@ async function main(): Promise<void> {
       }
       if (!consent) {
         console.log(
-          '[Pixel Agents] Hooks not installed: modifying ~/.claude/settings.json needs one-time approval — open the URL below to review and approve it.',
+          '[Escritorinho] Hooks not installed: modifying ~/.claude/settings.json needs one-time approval — open the URL below to review and approve it.',
         );
       } else if (copyHookScriptOrReport(packageRoot)) {
         try {
           await claudeProvider.installHooks(`http://127.0.0.1:${config.port}`, config.token);
-          console.log('[Pixel Agents] Hooks installed');
+          console.log('[Escritorinho] Hooks installed');
         } catch (err) {
-          console.error(`[Pixel Agents] ${err instanceof Error ? err.message : String(err)}`);
+          console.error(`[Escritorinho] ${err instanceof Error ? err.message : String(err)}`);
         }
       }
     } else {
       // Without this line, a persisted hooks-off makes startup skip the entire
       // consent/install flow with zero output — indistinguishable from a bug.
       console.log(
-        '[Pixel Agents] Hooks disabled — enable "Instant Detection (Hooks)" in the UI settings to install them.',
+        '[Escritorinho] Hooks disabled — enable "Instant Detection (Hooks)" in the UI settings to install them.',
       );
     }
 
@@ -489,7 +489,7 @@ async function main(): Promise<void> {
     const dirs = claudeProvider.getSessionDirs?.(cwd);
     if (dirs && dirs[0]) {
       const projectDir = dirs[0];
-      console.log(`[Pixel Agents] Scanning project dir: ${projectDir}`);
+      console.log(`[Escritorinho] Scanning project dir: ${projectDir}`);
       runtime.startProjectScan(projectDir);
       runtime.startExternalScanning(projectDir);
       runtime.startStaleCheck();
@@ -505,7 +505,7 @@ async function main(): Promise<void> {
     const displayHost =
       args.host === '0.0.0.0' || args.host === '::' || args.host === '' ? '127.0.0.1' : args.host;
     console.log(
-      `\n  Pixel Agents server running at http://${displayHost}:${config.port}/?token=${config.token}\n`,
+      `\n  Escritorinho server running at http://${displayHost}:${config.port}/?token=${config.token}\n`,
     );
 
     // ── Graceful shutdown ──

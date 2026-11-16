@@ -159,7 +159,7 @@ function backupClaudeSettingsOnce(settingsPath: string): void {
   const backupPath = settingsPath + SETTINGS_BACKUP_SUFFIX;
   try {
     fs.copyFileSync(settingsPath, backupPath, fs.constants.COPYFILE_EXCL);
-    console.log(`[Pixel Agents] Backed up Claude settings to ${backupPath}`);
+    console.log(`[Escritorinho] Backed up Claude settings to ${backupPath}`);
   } catch (e) {
     if ((e as NodeJS.ErrnoException).code !== 'EEXIST') throw e;
     if (!isRegularFile(backupPath)) {

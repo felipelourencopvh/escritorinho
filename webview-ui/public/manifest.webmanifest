@@ -1,6 +1,6 @@
 {
-  "name": "Pixel Agents",
-  "short_name": "Pixel Agents",
+  "name": "Escritorinho",
+  "short_name": "Escritorinho",
   "description": "Pixel art office where your Claude Code agents come to life as animated characters",
   "display": "standalone",
   "orientation": "any",

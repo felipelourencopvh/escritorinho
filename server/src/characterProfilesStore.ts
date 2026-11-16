@@ -48,10 +48,10 @@ function cachedJsonFile<T>(opts: {
       if (fs.existsSync(file)) {
         const value = opts.parse(JSON.parse(fs.readFileSync(file, 'utf-8')));
         if (value) return value;
-        console.warn(`[Pixel Agents] Ignoring malformed ${opts.fileName}`);
+        console.warn(`[Escritorinho] Ignoring malformed ${opts.fileName}`);
       }
     } catch (err) {
-      console.error(`[Pixel Agents] Failed to read ${opts.label}:`, err);
+      console.error(`[Escritorinho] Failed to read ${opts.label}:`, err);
     }
     return opts.fallback();
   }

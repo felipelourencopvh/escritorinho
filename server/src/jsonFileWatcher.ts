@@ -70,10 +70,10 @@ export function watchJsonFile(
       lastMtime = mtime;
 
       const value: unknown = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-      console.log(`[Pixel Agents] External ${label} change detected`);
+      console.log(`[Escritorinho] External ${label} change detected`);
       onExternalChange(value);
     } catch (err) {
-      console.error(`[Pixel Agents] Error checking ${label} file:`, err);
+      console.error(`[Escritorinho] Error checking ${label} file:`, err);
     }
   }
 
@@ -86,7 +86,7 @@ export function watchJsonFile(
       });
       fsWatcher.on('error', (err) => {
         // fs.watch can be unreliable on macOS (kqueue) and may hit inotify limits on Linux
-        console.log(`[Pixel Agents] ${label}: fs.watch error: ${err.message}`);
+        console.log(`[Escritorinho] ${label}: fs.watch error: ${err.message}`);
         fsWatcher?.close();
         fsWatcher = null;
       });

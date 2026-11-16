@@ -136,7 +136,7 @@ export async function installHooks(): Promise<void> {
     });
   }
   if (wrote) {
-    console.log('[Pixel Agents] Hooks installed in ~/.claude/settings.json');
+    console.log('[Escritorinho] Hooks installed in ~/.claude/settings.json');
   }
 }
 
@@ -249,7 +249,7 @@ export async function uninstallHooks(): Promise<void> {
     });
   }
   if (wrote) {
-    console.log('[Pixel Agents] Hooks removed from ~/.claude/settings.json');
+    console.log('[Escritorinho] Hooks removed from ~/.claude/settings.json');
   }
 }
 

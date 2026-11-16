@@ -114,7 +114,7 @@ export function recordUsageReport(
     writeJsonAtomic(usageFilePath(), all);
   } catch (err) {
     // The office still gets the report; only a restart would lose it.
-    console.error('[Pixel Agents] Could not save usage limits:', err);
+    console.error('[Escritorinho] Could not save usage limits:', err);
   }
   return true;
 }
@@ -172,7 +172,7 @@ export async function applyUsageBridgeChoice(
     return usageBridgeStatusMessage(provider);
   } catch (err) {
     const reason = err instanceof Error ? err.message : String(err);
-    console.error(`[Pixel Agents] ${reason}`);
+    console.error(`[Escritorinho] ${reason}`);
     return usageBridgeStatusMessage(provider, reason);
   }
 }
