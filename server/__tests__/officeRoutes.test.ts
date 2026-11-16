@@ -57,11 +57,11 @@ describe('office API', () => {
   });
 
   it('adds a Directory with its agent name and briefing, and every office hears of it', async () => {
-    const res = await post({ name: 'Mariana', path: project, agentName: 'Ana', briefing: 'Role.' });
+    const res = await post({ name: 'Reviews', path: project, agentName: 'Ana', briefing: 'Role.' });
     expect(res.statusCode).toBe(200);
     expect(res.json()).toEqual({
       directory: {
-        name: 'Mariana',
+        name: 'Reviews',
         path: project,
         agentName: 'Ana',
         briefing: 'Role.',
@@ -70,16 +70,16 @@ describe('office API', () => {
       launched: false,
     });
     expect(readConfig().directories).toEqual([
-      { name: 'Mariana', path: project, agentName: 'Ana', briefing: 'Role.' },
+      { name: 'Reviews', path: project, agentName: 'Ana', briefing: 'Role.' },
     ]);
     expect(broadcasts.some((m) => m.type === 'directoriesLoaded')).toBe(true);
   });
 
   it('an update keeps what it does not mention', async () => {
-    await post({ name: 'Mariana', path: project, agentName: 'Ana', briefing: 'Role.' });
+    await post({ name: 'Reviews', path: project, agentName: 'Ana', briefing: 'Role.' });
     await post({ path: project, agentName: 'Bia' });
     expect(readConfig().directories).toEqual([
-      { name: 'Mariana', path: project, agentName: 'Bia', briefing: 'Role.' },
+      { name: 'Reviews', path: project, agentName: 'Bia', briefing: 'Role.' },
     ]);
   });
 
@@ -91,20 +91,20 @@ describe('office API', () => {
   });
 
   it('says so when it cannot launch (no terminals), keeping the saved Directory', async () => {
-    const res = await post({ name: 'Mariana', path: project, launch: true });
+    const res = await post({ name: 'Reviews', path: project, launch: true });
     expect(res.statusCode).toBe(409);
     expect(readConfig().directories).toHaveLength(1);
   });
 
   it('lists the Directories', async () => {
-    await post({ name: 'Mariana', path: project, agentName: 'Ana' });
+    await post({ name: 'Reviews', path: project, agentName: 'Ana' });
     const res = await app.inject({
       method: 'GET',
       url: '/api/office/directories',
       headers: { authorization: `Bearer ${TOKEN}` },
     });
     expect(res.json().directories).toEqual([
-      { name: 'Mariana', path: project, agentName: 'Ana', source: 'user' },
+      { name: 'Reviews', path: project, agentName: 'Ana', source: 'user' },
     ]);
   });
 });
@@ -115,7 +115,7 @@ describe('escritorinho agent (arguments)', () => {
       parseAgentArgs([
         'add',
         '--name',
-        'Mariana',
+        'Reviews',
         '--path',
         '/p',
         '--agent-name',
@@ -126,7 +126,7 @@ describe('escritorinho agent (arguments)', () => {
       ]),
     ).toEqual({
       action: 'add',
-      name: 'Mariana',
+      name: 'Reviews',
       path: '/p',
       agentName: 'Ana',
       briefing: 'Role.',
