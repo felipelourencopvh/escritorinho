@@ -1,10 +1,29 @@
-# Contributing to Pixel Agents
+# Contributing to Escritorinho
 
-Thanks for your interest in contributing to Pixel Agents! All contributions are welcome — features, bug fixes, documentation improvements, refactors, and more.
+Thanks for wanting to help! Code, pixel art, translations, docs, bug reports and ideas are all welcome. Issues and pull requests can be in **English or Portuguese**.
 
 This project is licensed under the [MIT License](LICENSE), so your contributions will be too. No CLA or DCO is required.
 
-Questions while you work on something? Ask in [Discord](https://discord.gg/Yk7jXebv9H).
+Escritorinho is a fork of [Pixel Agents](https://github.com/pixel-agents-hq/pixel-agents), so most of this guide (architecture, tests, assets) is shared with it. [`CLAUDE.md`](CLAUDE.md) is the detailed architecture reference.
+
+## Good first contributions
+
+- **A new language**: copy `webview-ui/src/i18n/en.ts`, translate it, and add one line to `LOCALES` in `webview-ui/src/i18n/index.ts`. The build fails if a key is missing, so you can't forget one.
+- **Chat lines**: what agents say to each other off duty is `chat.line*` in the dictionaries (`webview-ui/src/office/engine/leisure.ts` picks them).
+- **Furniture**: see `scripts/generate-leisure-art.mjs` for how the TV, kitchen counter, fridge and microwave were drawn, and "Office assets" below.
+- **Office life**: new off-duty activities live in `webview-ui/src/office/engine/leisure.ts`, with tests in `webview-ui/test/leisure.test.ts`.
+
+## Quick setup (standalone)
+
+```bash
+git clone https://github.com/felipelourencopvh/escritorinho.git
+cd escritorinho
+npm ci
+npm run compile
+node dist/cli.js --port 3100 --pty-host
+```
+
+You don't need a real Claude Code session to see the office move: the e2e suite's mock (`e2e/fixtures/mock-claude`) writes transcripts like the real CLI, and "Running the Mocked Pixel Agent" below shows how to run it.
 
 ## Getting Started
 
@@ -16,8 +35,8 @@ Questions while you work on something? Ask in [Discord](https://discord.gg/Yk7jX
 ### Setup
 
 ```bash
-git clone https://github.com/pixel-agents-hq/pixel-agents.git
-cd pixel-agents
+git clone https://github.com/felipelourencopvh/escritorinho.git
+cd escritorinho
 npm install
 npm run build
 ```
@@ -55,21 +74,6 @@ npm run verify:npm-package
 ```
 
 The verifier runs the production `prepack` build, creates a tarball outside the repository, installs that exact tarball into a temporary project, and exercises CLI help, the health endpoint, the standalone SPA, bundled assets, and default Hook ON setup. Temporary files and the child server are removed automatically; it never publishes to npm.
-
-### Maintainer release checklist
-
-A published GitHub Release coordinates publishing to the VS Code Marketplace, Open VSX, and npm through [`.github/workflows/publish-extension.yml`](.github/workflows/publish-extension.yml). Publishing is release-driven, not triggered by a push to `main` alone.
-
-One-time npm setup: configure the `pixel-agents` package's GitHub Actions [trusted publisher](https://docs.npmjs.com/trusted-publishers/) for `pixel-agents-hq/pixel-agents`, workflow `publish-extension.yml`, no environment, and allow `npm publish`.
-The GitHub-hosted workflow enforces Node >=22.14.0 and npm >=11.5.1 and uses OIDC (`id-token: write`); do not configure a long-lived publish token, and revoke any unused one.
-
-For each release:
-
-1. Update `CHANGELOG.md`, then set the same new version in the root `package.json` and both root-version fields in `package-lock.json`. The private workspace manifests are not released and do not receive the extension version.
-2. Run `npm ci`, `npm test`, and `npm run verify:npm-package`. Inspect the generated package if needed by manually dispatching **Publish Extension** in dry-run mode and downloading its `npm-package-*` artifact; manual dispatch never publishes to npm.
-3. Merge the release changes into `main` and wait for CI to pass.
-4. Create and publish a GitHub Release whose tag is exactly `v<package.json version>` and points to that commit on `main` (for example, `v1.4.0`). The npm job rejects a mismatched tag, ref, package identity, non-incrementing version, or changed tarball integrity.
-5. Confirm the Marketplace, Open VSX, and npm jobs succeeded, and verify the new npm version with `npm view pixel-agents version`.
 
 ## Development Workflow
 
@@ -306,11 +310,11 @@ The staged output serves the combined `e2e`, `server`, and `webview` Allure repo
 
 ## Reporting Bugs
 
-[Open a bug report](https://github.com/pixel-agents-hq/pixel-agents/issues/new?template=bug_report.yml) — the form will guide you through providing the details we need.
+[Open a bug report](https://github.com/felipelourencopvh/escritorinho/issues/new?template=bug_report.yml) — the form will guide you through providing the details we need.
 
 ## Feature Requests
 
-Have an idea? [Open a feature request](https://github.com/pixel-agents-hq/pixel-agents/issues/new?template=feature_request.yml) — the form will guide you through describing the problem and your proposed solution. You can also browse and join ongoing conversations in [Discussions](https://github.com/pixel-agents-hq/pixel-agents/discussions).
+Have an idea? [Open a feature request](https://github.com/felipelourencopvh/escritorinho/issues/new?template=feature_request.yml) — the form will guide you through describing the problem and your proposed solution.
 
 ## Security Issues
 

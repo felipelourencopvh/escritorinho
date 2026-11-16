@@ -11,6 +11,7 @@
  * handlers the office's own messages use, so every open office updates at once.
  */
 import type { FastifyInstance } from 'fastify';
+import * as fs from 'fs';
 
 import type { AgentRuntime } from './agentRuntime.js';
 import type { AgentStateStore } from './agentStateStore.js';
@@ -57,15 +58,23 @@ export function registerOfficeRoutes(app: FastifyInstance, options: OfficeRouteO
       return reply.code(400).send({ error: 'path is required' });
     }
 
+    // The folder's real path: /tmp/x and /private/tmp/x (or a symlinked
+    // checkout) are one folder, so one Directory, not two.
+    let target = body.path;
+    try {
+      target = fs.realpathSync.native(body.path);
+    } catch {
+      // Missing: saveDirectory refuses it with its own reason.
+    }
     // Updating an existing Directory keeps what the call doesn't mention
     // (its default characters, and its agent name and briefing unless given).
-    const existing = directoryAt(body.path, []);
+    const existing = directoryAt(target, []) ?? directoryAt(body.path, []);
     const replies: Array<Record<string, unknown>> = [];
     handleClientMessage(
       {
         type: 'saveDirectory',
         name: typeof body.name === 'string' ? body.name : (existing?.name ?? ''),
-        path: body.path,
+        path: existing?.path ?? target,
         ...(existing ? { previousPath: existing.path } : {}),
         agentName: typeof body.agentName === 'string' ? body.agentName : existing?.agentName,
         briefing: typeof body.briefing === 'string' ? body.briefing : existing?.briefing,

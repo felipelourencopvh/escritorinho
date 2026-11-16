@@ -13,6 +13,7 @@
  */
 import * as fs from 'fs';
 import * as http from 'http';
+import * as path from 'path';
 
 import type { Directory } from '../../core/src/messages.js';
 import { OFFICE_API_PREFIX } from './constants.js';
@@ -53,7 +54,8 @@ export function parseAgentArgs(argv: string[]): AgentCommandArgs {
       return v;
     };
     if (flag === '--name') args.name = value();
-    else if (flag === '--path') args.path = value();
+    else if (flag === '--path')
+      args.path = path.resolve(value()); // relative to here, not the office
     else if (flag === '--agent-name') args.agentName = value();
     else if (flag === '--briefing') args.briefing = value();
     else if (flag === '--briefing-file') args.briefing = fs.readFileSync(value(), 'utf8');

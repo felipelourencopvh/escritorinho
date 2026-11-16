@@ -25,7 +25,7 @@ describe('office API', () => {
     originalHome = process.env.HOME;
     home = fs.mkdtempSync(path.join(os.tmpdir(), 'pxl-office-home-'));
     process.env.HOME = home;
-    project = fs.mkdtempSync(path.join(os.tmpdir(), 'pxl-office-project-'));
+    project = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'pxl-office-project-')));
     store = new AgentStateStore();
     broadcasts = [];
     store.on('broadcast', (m) => broadcasts.push(m));
@@ -96,6 +96,20 @@ describe('office API', () => {
     expect(readConfig().directories).toHaveLength(1);
   });
 
+  it('one folder is one Directory, whichever path to it (a symlink, /tmp vs /private/tmp)', async () => {
+    const link = `${project}-link`;
+    fs.symlinkSync(project, link);
+    try {
+      await post({ name: 'Reviews', path: link, agentName: 'Ana' });
+      await post({ path: fs.realpathSync(project), agentName: 'Bia' });
+      const dirs = readConfig().directories;
+      expect(dirs).toHaveLength(1);
+      expect(dirs[0]).toMatchObject({ path: fs.realpathSync(project), agentName: 'Bia' });
+    } finally {
+      fs.rmSync(link, { force: true });
+    }
+  });
+
   it('lists the Directories', async () => {
     await post({ name: 'Reviews', path: project, agentName: 'Ana' });
     const res = await app.inject({
@@ -127,7 +141,7 @@ describe('escritorinho agent (arguments)', () => {
     ).toEqual({
       action: 'add',
       name: 'Reviews',
-      path: '/p',
+      path: path.resolve('/p'),
       agentName: 'Ana',
       briefing: 'Role.',
       launch: true,
