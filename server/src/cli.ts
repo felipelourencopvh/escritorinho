@@ -10,6 +10,7 @@
 
 import * as path from 'path';
 
+import { runAgentCommand } from './agentCommand.js';
 import { AgentRuntime } from './agentRuntime.js';
 import { AgentStateStore } from './agentStateStore.js';
 import {
@@ -149,7 +150,9 @@ Options:
                         (e.g. to update it) leaves agents running
   --pty-host-socket <path>
                         That process's socket (implies --pty-host)
-  --help                Show this help message`);
+  --help                Show this help message
+
+  escritorinho agent …  Manage the running office's agents (run it for details)`);
       process.exit(0);
     }
   }
@@ -268,6 +271,16 @@ async function openTerminalSessions(args: CliArgs, distRoot: string): Promise<Te
 // ── Main ──────────────────────────────────────────────────────
 
 async function main(): Promise<void> {
+  // `escritorinho agent …` talks to the running office instead of starting one.
+  if (process.argv[2] === 'agent') {
+    try {
+      console.log(await runAgentCommand(process.argv.slice(3)));
+      process.exit(0);
+    } catch (err) {
+      console.error(err instanceof Error ? err.message : String(err));
+      process.exit(1);
+    }
+  }
   let args: CliArgs;
   try {
     args = parseArgs(process.argv.slice(2));

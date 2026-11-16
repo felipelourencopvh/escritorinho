@@ -22,6 +22,7 @@ import {
 } from './constants.js';
 import { applyReportedContext } from './contextUsage.js';
 import { registerDeskRoutes } from './deskRoutes.js';
+import { registerOfficeRoutes } from './officeRoutes.js';
 import { hookProviderById } from './providers/index.js';
 import { registerTerminalRoutes } from './terminal/terminalRoutes.js';
 import type { TerminalSessions } from './terminal/terminalSessions.js';
@@ -131,6 +132,15 @@ export async function createHttpServer(options: HttpServerOptions): Promise<Http
   // The desk goes with the terminal: only agents this host launched have one.
   if (!options.embedded && options.ptyManager) {
     registerDeskRoutes(app, { token: options.token, allowedHostnames, store: options.store });
+  }
+  // The office API (the reception agent's `escritorinho agent …`): standalone only.
+  if (!options.embedded) {
+    registerOfficeRoutes(app, {
+      token: options.token,
+      store: options.store,
+      runtime: options.runtime,
+      ptyManager: options.ptyManager,
+    });
   }
 
   // ── Listen ──────────────────────────────────────────────────

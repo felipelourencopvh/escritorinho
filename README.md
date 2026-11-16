@@ -44,6 +44,21 @@ Open the URL it prints (`http://127.0.0.1:3100/?token=…`). **Treat that URL as
 3. Write to it. Drop files on it. Answer its questions with the buttons.
 4. Past conversations are in the left sidebar; click one to resume it.
 
+## The reception
+
+Ask for an agent in plain words and have it created for you: "call the agent for the Acme site".
+The reception is an ordinary agent whose briefing tells it to find the project in your notes, write
+the new agent's briefing and create it with `escritorinho agent add … --launch`. Set it up once with
+[`docs/reception-briefing.md`](docs/reception-briefing.md).
+
+```bash
+node dist/cli.js agent list                       # the office's agents
+node dist/cli.js agent add --name Acme --path ~/code/acme --agent-name Ana \
+  --briefing-file briefing.txt --launch            # create (or update) and open one
+```
+
+The command talks to the running office (the token comes from `~/.escritorinho/`, never typed).
+
 ## Security and privacy
 
 - The server listens on **127.0.0.1 only**. Every action that changes something (launching an agent, typing into it, saving a file on its desk) needs the token in the URL and the expected host; uploads also check the page's origin.
@@ -101,6 +116,10 @@ node dist/cli.js --port 3100 --pty-host
 ```
 
 Abra o endereço que aparecer (`http://127.0.0.1:3100/?token=…`). **Esse endereço é como uma senha**: quem tiver ele consegue abrir agentes no seu nome. Com `--pty-host`, os agentes continuam rodando mesmo se o Escritorinho for reiniciado.
+
+### A recepção
+
+Peça um agente com as suas palavras ("chama o agente do site da Acme") e ele é criado para você. A recepção é um agente comum cujo briefing manda procurar o projeto nas suas anotações, escrever o briefing do novo agente e criá-lo com `escritorinho agent add … --launch`. Veja o modelo em [`docs/reception-briefing.md`](docs/reception-briefing.md).
 
 ### Segurança e privacidade
 

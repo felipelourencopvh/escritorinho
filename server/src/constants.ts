@@ -265,3 +265,6 @@ export const DESK_MAX_FILE_NAME_LENGTH = 120;
  *  keys that answer it (an arrow, then Enter). */
 export const TERMINAL_PROMPT_DETAIL_LINES = 14;
 export const TERMINAL_PROMPT_KEY_GAP_MS = 80;
+
+/** The office's own API for agents and scripts on this machine (officeRoutes.ts). */
+export const OFFICE_API_PREFIX = '/api/office';
