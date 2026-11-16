@@ -515,4 +515,17 @@ export const ptBR: Record<MessageKey, string> = {
     'O que esse agente faz, como deve trabalhar e onde ficam as anotações dele. Exemplo: Você analisa editais de licitação. Leia ~/anotacoes/MEMORY.md antes de começar.',
   'directory.briefingHint':
     'Enviado ao Claude Code toda vez que um agente começa aqui. Nada é gravado na pasta.',
+
+  // ── Chat view ──
+  'chat.agent': 'Agente',
+  'chat.you': 'Você',
+  'chat.empty': 'Nenhuma mensagem ainda. Escreva para {name} aqui embaixo.',
+  'chat.typing': '{name} está trabalhando…',
+  'chat.needsApproval': '{name} precisa da sua autorização para continuar.',
+  'chat.openTerminal': 'Responder no terminal',
+  'chat.placeholder': 'Mensagem para {name}…',
+  'chat.send': 'Enviar',
+  'chat.viewLabel': 'Visão do agente',
+  'chat.tabChat': 'Chat',
+  'chat.tabTerminal': 'Terminal',
 };

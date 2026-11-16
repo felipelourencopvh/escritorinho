@@ -2,6 +2,7 @@ import type { StateAdapter } from '../../core/src/adapter.js';
 import { rosterPick } from '../../core/src/paletteUtils.js';
 import type { HookProvider } from '../../core/src/provider.js';
 import { resendAgentActivity } from './agentActivityResend.js';
+import { readChatHistory, writeChatToTerminal } from './agentChat.js';
 import { buildAgentDiagnostics } from './agentDiagnostics.js';
 import type { AgentRuntime } from './agentRuntime.js';
 import type { AgentStateStore } from './agentStateStore.js';
@@ -19,7 +20,11 @@ import {
   setHooksEnabled,
   writeConfig,
 } from './configPersistence.js';
-import { MAX_CHARACTER_REPEAT, TERMINAL_REQUIRES_TOKEN_REASON } from './constants.js';
+import {
+  CHAT_MESSAGE_MAX_LENGTH,
+  MAX_CHARACTER_REPEAT,
+  TERMINAL_REQUIRES_TOKEN_REASON,
+} from './constants.js';
 import {
   conversationLimitsFrom,
   conversationQueryFrom,
@@ -211,6 +216,30 @@ export function handleClientMessage(
           conversationLimitsFrom(msg.limits),
         ),
       });
+      break;
+    }
+
+    case 'requestAgentChat': {
+      const agent = typeof msg.id === 'number' ? store.get(msg.id) : undefined;
+      if (!agent?.jsonlFile) break;
+      send({
+        type: 'agentChatHistory',
+        id: msg.id,
+        entries: readChatHistory(
+          agent.jsonlFile,
+          (agent.providerId && hookProviderById(agent.providerId)) || claudeProvider,
+        ),
+      });
+      break;
+    }
+
+    case 'sendAgentChat': {
+      // Typed into the agent's own terminal: only one this host owns.
+      if (typeof msg.id !== 'number' || typeof msg.text !== 'string') break;
+      const text = msg.text.slice(0, CHAT_MESSAGE_MAX_LENGTH);
+      const session = ctx.ptyManager?.get(msg.id);
+      if (!text.trim() || !session || session.hasExited) break;
+      writeChatToTerminal(session, text);
       break;
     }
 

@@ -1,9 +1,14 @@
 import type { MouseEvent as ReactMouseEvent } from 'react';
 
+import { ChatPane } from '../chat/ChatPane.js';
+import { setChatViewMode } from '../chat/chatViewMode.js';
+import { ChatViewTabs } from '../chat/ChatViewTabs.js';
+import { useChatViewMode } from '../chat/useChatViewMode.js';
 import { SIDE_PANEL_CONTENT_SHIFT_PX, TERMINAL_DRAWER_RESIZE_HANDLE_PX } from '../constants.js';
 import { useSlidePanel } from '../hooks/useSlidePanel.js';
 import { useT } from '../i18n/index.js';
 import type { TerminalConnectionStatus } from '../terminal/terminalClient.js';
+import type { AgentAppearance, TabStatus } from './AgentCard.js';
 import { TerminalPaneStack } from './TerminalPaneStack.js';
 
 interface TerminalDrawerProps {
@@ -17,6 +22,9 @@ interface TerminalDrawerProps {
   /** Mousedown on the left-edge drag handle; App owns the resize gesture. */
   onResizeStart: (e: ReactMouseEvent) => void;
   onStatusChange: (agentId: number, status: TerminalConnectionStatus | null) => void;
+  /** The shown agent's card status and name, for the chat view. */
+  statusFor: (agentId: number) => TabStatus | null;
+  getAppearance: (agentId: number) => AgentAppearance;
 }
 
 /**
@@ -39,7 +47,10 @@ export function TerminalDrawer({
   widthPx,
   onResizeStart,
   onStatusChange,
+  statusFor,
+  getAppearance,
 }: TerminalDrawerProps) {
+  const chatMode = useChatViewMode();
   // `rendered` keeps the panes laid out (display:none once shut — never
   // unmounted: that would drop each xterm's scrollback and force a reconnect
   // on every toggle); `shown` is the width target.
@@ -80,6 +91,7 @@ export function TerminalDrawer({
             title={t('terminal.dragResize')}
           />
 
+          <ChatViewTabs className="shrink-0 pt-6 pb-2 pl-12 pr-6" />
           <div className="relative flex-1 min-h-0 p-4">
             <TerminalPaneStack
               agentIds={agentIds}
@@ -88,6 +100,16 @@ export function TerminalDrawer({
               paneClassName="inset-4"
               keepHidden
             />
+            {/* Over the terminal, never instead of it: the panes stay laid
+                out (and connected) underneath, so switching views is instant. */}
+            {chatMode === 'chat' && shownAgentId !== null && (
+              <ChatPane
+                agentId={shownAgentId}
+                status={statusFor(shownAgentId)}
+                agentName={getAppearance(shownAgentId).name}
+                onOpenTerminal={() => setChatViewMode('terminal')}
+              />
+            )}
           </div>
         </div>
       </div>

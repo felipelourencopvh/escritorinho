@@ -163,6 +163,10 @@ export function processTranscriptLine(
     // -- Context window usage (drives every agent's context gauge) --
     updateContextUsage(agentId, agent, agents, record, hookProvider);
 
+    // -- Chat view: a prompt or a text reply, as the office's chat shows it --
+    const chatEntry = hookProvider?.chatEntryFromRecord?.(record);
+    if (chatEntry) agents.broadcast({ type: 'agentChatMessage', id: agentId, entry: chatEntry });
+
     // Resilient content extraction: support both record.message.content and record.content
     // Claude Code may change the JSONL structure across versions
     const assistantContent = record.message?.content ?? record.content;

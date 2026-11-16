@@ -868,6 +868,8 @@ function App() {
               widthPx={terminalDrawer.widthPx}
               onResizeStart={terminalDrawer.onResizeStart}
               onStatusChange={terminalDrawer.onStatusChange}
+              statusFor={terminalDrawer.statusFor}
+              getAppearance={terminalDrawer.getAppearance}
             />
           )}
         </>

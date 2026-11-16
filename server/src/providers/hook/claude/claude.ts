@@ -8,6 +8,7 @@ import {
   BASH_COMMAND_DISPLAY_MAX_LENGTH,
   TASK_DESCRIPTION_DISPLAY_MAX_LENGTH,
 } from '../../../constants.js';
+import { chatEntryFromRecord } from './chatEntries.js';
 import {
   areHooksInstalled as installerAreHooksInstalled,
   installHooks as installerInstallHooks,
@@ -349,6 +350,7 @@ export const claudeProvider: HookProvider = {
   buildLaunchCommand,
   isInheritedSessionEnv: isInheritedClaudeSessionEnv,
   conversationTitle,
+  chatEntryFromRecord,
 
   team: claudeTeamProvider,
   usageBridge: claudeUsageBridge,

@@ -878,3 +878,9 @@ export const VERSION_NOTICE_ABOVE_PX = 34;
 /** A Directory's agent name and briefing, in characters (the server caps them the same). */
 export const DIRECTORY_AGENT_NAME_MAX_LENGTH = 40;
 export const DIRECTORY_BRIEFING_MAX_LENGTH = 4000;
+
+/** The chat view: its mode in localStorage, the longest message, and how close
+ *  to the foot of the conversation (px) still counts as "following" it. */
+export const CHAT_VIEW_MODE_STORAGE_KEY = 'escritorinho.chatViewMode';
+export const CHAT_INPUT_MAX_LENGTH = 20000;
+export const CHAT_STICK_TO_BOTTOM_PX = 48;

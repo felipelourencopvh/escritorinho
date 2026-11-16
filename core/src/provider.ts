@@ -7,7 +7,7 @@
  * speculation.
  */
 
-import type { UsageWindow } from './messages.js';
+import type { ChatEntry, UsageWindow } from './messages.js';
 import type { TeamProvider } from './teamProvider.js';
 
 // ── Normalized Events (all provider types produce these) ──────
@@ -219,6 +219,10 @@ export interface HookProvider {
    *  recent conversations; undefined = this provider names no conversations
    *  (and is never asked to resume one). */
   conversationTitle?(transcriptPath: string): string | undefined;
+
+  /** One transcript record as a line of the chat view (a prompt the user typed
+   *  or a text reply), or null for anything else. Undefined = no chat view. */
+  chatEntryFromRecord?(record: unknown): ChatEntry | null;
 
   /** Optional account-usage reporting (the office's usage bars). */
   readonly usageBridge?: UsageBridge;

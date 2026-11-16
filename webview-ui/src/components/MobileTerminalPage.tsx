@@ -1,8 +1,13 @@
 import type { Ref } from 'react';
 
+import { ChatPane } from '../chat/ChatPane.js';
+import { setChatViewMode } from '../chat/chatViewMode.js';
+import { ChatViewTabs } from '../chat/ChatViewTabs.js';
+import { useChatViewMode } from '../chat/useChatViewMode.js';
 import { MOBILE_TERMINAL_FONT_SIZE_PX } from '../constants.js';
 import { useT } from '../i18n/index.js';
 import type { TerminalConnectionStatus } from '../terminal/terminalClient.js';
+import type { AgentAppearance, TabStatus } from './AgentCard.js';
 import type { TerminalInputHandle } from './TerminalPane.js';
 import { TerminalPaneStack } from './TerminalPaneStack.js';
 
@@ -14,6 +19,9 @@ interface MobileTerminalPageProps {
   onStatusChange: (agentId: number, status: TerminalConnectionStatus | null) => void;
   /** Input into the shown pane, for the key bar. */
   inputRef: Ref<TerminalInputHandle>;
+  /** The shown agent's card status and name, for the chat view. */
+  statusFor: (agentId: number) => TabStatus | null;
+  getAppearance: (agentId: number) => AgentAppearance;
 }
 
 /**
@@ -33,8 +41,11 @@ export function MobileTerminalPage({
   shownAgentId,
   onStatusChange,
   inputRef,
+  statusFor,
+  getAppearance,
 }: MobileTerminalPageProps) {
   const t = useT();
+  const chatMode = useChatViewMode();
   return (
     <div className="relative w-full h-full bg-bg-dark">
       {agentIds.length === 0 && (
@@ -43,16 +54,31 @@ export function MobileTerminalPage({
           <span className="text-sm text-text-muted">{t('mobile.noTerminalsHint')}</span>
         </div>
       )}
-      <TerminalPaneStack
-        agentIds={agentIds}
-        shownAgentId={shownAgentId}
-        onStatusChange={onStatusChange}
-        paneClassName="left-4 right-4 bottom-4 mobile-safe-pane-top"
-        fontSizePx={MOBILE_TERMINAL_FONT_SIZE_PX}
-        autoFocus={false}
-        keepHidden={false}
-        inputRef={inputRef}
-      />
+      {agentIds.length > 0 && (
+        // Left of the page's top corner; the office/terminal toggle holds the right.
+        <ChatViewTabs className="absolute mobile-safe-top left-8 z-30" />
+      )}
+      <div className="absolute left-0 right-0 bottom-0 top-[calc(env(safe-area-inset-top,0px)+52px)]">
+        <TerminalPaneStack
+          agentIds={agentIds}
+          shownAgentId={shownAgentId}
+          onStatusChange={onStatusChange}
+          paneClassName="inset-4"
+          fontSizePx={MOBILE_TERMINAL_FONT_SIZE_PX}
+          autoFocus={false}
+          keepHidden={false}
+          inputRef={inputRef}
+        />
+        {chatMode === 'chat' && shownAgentId !== null && (
+          <ChatPane
+            agentId={shownAgentId}
+            status={statusFor(shownAgentId)}
+            agentName={getAppearance(shownAgentId).name}
+            onOpenTerminal={() => setChatViewMode('terminal')}
+            autoFocus={false}
+          />
+        )}
+      </div>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import type { ReactNode, RefObject } from 'react';
 import { useCallback, useRef } from 'react';
 
+import { useChatViewMode } from '../chat/useChatViewMode.js';
 import { MobileAgentBar } from '../components/MobileAgentBar.js';
 import { MobileKeyBar } from '../components/MobileKeyBar.js';
 import { MobileTerminalPage } from '../components/MobileTerminalPage.js';
@@ -74,6 +75,8 @@ export function MobileShell({
   menuSwipe,
 }: MobileShellProps) {
   const t = useT();
+  // The key bar types into the terminal: no use over the chat.
+  const chatMode = useChatViewMode();
   const shellRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   // In the office the right edge pulls the terminal and the left edge the
@@ -119,6 +122,8 @@ export function MobileShell({
               shownAgentId={drawer.shownAgentId}
               onStatusChange={drawer.onStatusChange}
               inputRef={inputRef}
+              statusFor={drawer.statusFor}
+              getAppearance={drawer.getAppearance}
             />
           </div>
         </div>
@@ -167,7 +172,7 @@ export function MobileShell({
 
       {/* Accessory keys for the TUI, only while the software keyboard is up —
           the last flex child, so it sits directly above the keyboard. */}
-      {shell.view === 'terminal' && keyboardOpen && (
+      {shell.view === 'terminal' && chatMode === 'terminal' && keyboardOpen && (
         <MobileKeyBar onKey={handleKey} lineCols={lineCols} />
       )}
     </>

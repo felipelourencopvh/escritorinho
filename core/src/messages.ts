@@ -50,6 +50,8 @@ export type ServerMessage =
   | DirectorySuggestions
   | ConversationsLoaded
   | ConversationSearchResults
+  | AgentChatHistory
+  | AgentChatMessage
   | TerminalAvailability
   | TerminalSessionOpened
   | TerminalSessionClosed
@@ -89,6 +91,8 @@ export type ClientMessage =
   | RequestConversations
   | SearchConversations
   | ResumeConversation
+  | RequestAgentChat
+  | SendAgentChat
   | RequestDiagnostics;
 
 export interface ProviderCapabilities {
@@ -505,6 +509,27 @@ export interface FoundConversation {
   conversation: Conversation;
 }
 
+export interface AgentChatHistory {
+  type: 'agentChatHistory';
+  id: number;
+  entries: ChatEntry[];
+}
+
+export interface ChatEntry {
+  uuid: string;
+  role: AnonymousSchema_294;
+  text: string;
+  timestamp?: string;
+}
+
+export type AnonymousSchema_294 = 'user' | 'assistant';
+
+export interface AgentChatMessage {
+  type: 'agentChatMessage';
+  id: number;
+  entry: ChatEntry;
+}
+
 export interface TerminalAvailability {
   type: 'terminalAvailability';
   available: boolean;
@@ -713,6 +738,17 @@ export interface ResumeConversation {
   type: 'resumeConversation';
   sessionId: string;
   directoryPath: string;
+}
+
+export interface RequestAgentChat {
+  type: 'requestAgentChat';
+  id: number;
+}
+
+export interface SendAgentChat {
+  type: 'sendAgentChat';
+  id: number;
+  text: string;
 }
 
 export interface RequestDiagnostics {

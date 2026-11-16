@@ -513,6 +513,19 @@ export const en = {
     'What this agent does, how it should work, and where its notes are. Example: You review public tenders. Read ~/notes/MEMORY.md before starting.',
   'directory.briefingHint':
     'Sent to Claude Code every time an agent starts here. Nothing is written to the folder.',
+
+  // ── Chat view ──
+  'chat.agent': 'Agent',
+  'chat.you': 'You',
+  'chat.empty': 'No messages yet. Write to {name} below.',
+  'chat.typing': '{name} is working…',
+  'chat.needsApproval': '{name} needs your approval to continue.',
+  'chat.openTerminal': 'Answer in the terminal',
+  'chat.placeholder': 'Message {name}…',
+  'chat.send': 'Send',
+  'chat.viewLabel': 'Agent view',
+  'chat.tabChat': 'Chat',
+  'chat.tabTerminal': 'Terminal',
 } as const;
 
 export type MessageKey = keyof typeof en;

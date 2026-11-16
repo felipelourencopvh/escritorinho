@@ -129,6 +129,9 @@ components:
         - $ref: '#/components/schemas/DirectorySuggestions'
         - $ref: '#/components/schemas/ConversationsLoaded'
         - $ref: '#/components/schemas/ConversationSearchResults'
+        # Agent chat (the chat view of an agent's conversation)
+        - $ref: '#/components/schemas/AgentChatHistory'
+        - $ref: '#/components/schemas/AgentChatMessage'
         # Terminal (standalone embedded terminal control plane)
         - $ref: '#/components/schemas/TerminalAvailability'
         - $ref: '#/components/schemas/TerminalSessionOpened'
@@ -172,6 +175,8 @@ components:
         - $ref: '#/components/schemas/RequestConversations'
         - $ref: '#/components/schemas/SearchConversations'
         - $ref: '#/components/schemas/ResumeConversation'
+        - $ref: '#/components/schemas/RequestAgentChat'
+        - $ref: '#/components/schemas/SendAgentChat'
         - $ref: '#/components/schemas/RequestDiagnostics'
       discriminator: type
 
@@ -1020,6 +1025,61 @@ components:
           type: string
           description: Human-readable cause, shown inline in the Directory modal.
 
+    ChatEntry:
+      description: |
+        One line of an agent's conversation as the chat view shows it: a prompt
+        the user typed or a text reply from the agent. Tool calls, tool results
+        and the CLI's own notices are left out (the office shows those as the
+        character's activity).
+      type: object
+      additionalProperties: false
+      required: [uuid, role, text]
+      properties:
+        uuid:
+          type: string
+          description: The transcript record's id; stable, so a client can dedupe.
+        role:
+          type: string
+          enum: [user, assistant]
+        text:
+          type: string
+        timestamp:
+          type: string
+          description: ISO 8601, as the transcript records it.
+
+    AgentChatHistory:
+      description: |
+        The tail of one agent's conversation, oldest first. Sent point-to-point
+        in reply to `requestAgentChat`.
+      type: object
+      additionalProperties: false
+      required: [type, id, entries]
+      properties:
+        type:
+          const: agentChatHistory
+        id:
+          type: integer
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChatEntry'
+
+    AgentChatMessage:
+      description: |
+        A new line of an agent's conversation, broadcast as the transcript is
+        read. May repeat an entry an `agentChatHistory` already carried
+        (same `uuid`): clients dedupe.
+      type: object
+      additionalProperties: false
+      required: [type, id, entry]
+      properties:
+        type:
+          const: agentChatMessage
+        id:
+          type: integer
+        entry:
+          $ref: '#/components/schemas/ChatEntry'
+
     DirectorySuggestions:
       description: |
         Candidate paths for the Directory modal, recovered from the working
@@ -1641,6 +1701,38 @@ components:
           const: removeDirectory
         path:
           type: string
+
+    RequestAgentChat:
+      description: >-
+        Ask for the tail of an agent's conversation; the host replies
+        `agentChatHistory` to this client only. Standalone only (the agent's
+        terminal is one the host owns).
+      type: object
+      additionalProperties: false
+      required: [type, id]
+      properties:
+        type:
+          const: requestAgentChat
+        id:
+          type: integer
+
+    SendAgentChat:
+      description: >-
+        Type a message into an agent's terminal and submit it, exactly as if the
+        user had typed it there. Ignored for an agent without a host-owned
+        terminal or one that has exited.
+      type: object
+      additionalProperties: false
+      required: [type, id, text]
+      properties:
+        type:
+          const: sendAgentChat
+        id:
+          type: integer
+        text:
+          type: string
+          minLength: 1
+          maxLength: 20000
 
     RequestDirectorySuggestions:
       description: >-

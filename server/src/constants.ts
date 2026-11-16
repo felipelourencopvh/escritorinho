@@ -243,3 +243,11 @@ export const MAX_CARD_ORDER_LENGTH = 1_000;
 export const DIRECTORY_AGENT_NAME_MAX_LENGTH = 40;
 /** A Directory's briefing (appended to the CLI's system prompt), in characters. */
 export const DIRECTORY_BRIEFING_MAX_LENGTH = 4000;
+
+/** The chat view: how much of a transcript's tail to read for its history, how
+ *  many entries to send, and the pause between a typed message and its Enter. */
+export const CHAT_HISTORY_TAIL_BYTES = 2 * 1024 * 1024;
+export const CHAT_HISTORY_MAX_ENTRIES = 200;
+export const CHAT_SUBMIT_DELAY_MS = 120;
+/** The longest message the chat view may type into a terminal (the protocol's cap). */
+export const CHAT_MESSAGE_MAX_LENGTH = 20000;
